@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RPG Online</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #222; color: white; }
+        .stats { font-size: 20px; margin: 20px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>⚔️ Arena RPG</h1>
+    <div class="stats">
+        <p>Seu HP: <span id="p_hp">{{ jogo.p_hp }}</span></p>
+        <p>Inimigo HP: <span id="e_hp">{{ jogo.e_hp }}</span></p>
+    </div>
+    <p id="log">{{ jogo.log }}</p>
+    <button onclick="enviarAcao('atacar')">Atacar!</button>
+
+    <script>
+        function enviarAcao(tipo) {
+            fetch('/acao', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({escolha: tipo})
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('p_hp').innerText = data.p_hp;
+                document.getElementById('e_hp').innerText = data.e_hp;
+                document.getElementById('log').innerText = data.log;
+            });
+        }
+    </script>
+</body>
+</html>
