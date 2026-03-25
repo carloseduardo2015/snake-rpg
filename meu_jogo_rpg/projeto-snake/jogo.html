@@ -18,59 +18,77 @@
 
         #starfield { position: fixed; inset: 0; z-index: -1; }
 
-        /* HUD SUPERIOR */
+        /* HUD */
         .hud { padding: 10px 20px; background: var(--panel); border-bottom: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); z-index: 5; }
         .stats-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
         .bar-outer { height: 6px; background: #000; border-radius: 3px; overflow: hidden; margin-bottom: 4px; border: 1px solid rgba(255,255,255,0.05); }
         .bar-inner { height: 100%; width: 0%; transition: 0.3s; }
 
-        /* AREA DO JOGO COM EFEITO SHAKE */
+        /* AREA DO JOGO */
         #viewport { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
         canvas#gameCanvas { 
-            width: 85vw; height: 85vw; max-width: 380px; max-height: 380px;
+            width: 82vw; height: 82vw; max-width: 380px; max-height: 380px;
             border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px; background: rgba(0,0,0,0.4);
-            transition: transform 0.1s; /* Para o efeito de shake */
+            transition: transform 0.1s;
         }
         .shake { animation: shakeAnim 0.3s; }
         @keyframes shakeAnim {
-            0% { transform: translate(3px, 3px); }
-            25% { transform: translate(-3px, -3px); }
-            50% { transform: translate(3px, -3px); }
-            75% { transform: translate(-3px, 3px); }
+            0% { transform: translate(4px, 4px); }
+            25% { transform: translate(-4px, -4px); }
+            50% { transform: translate(4px, -4px); }
+            75% { transform: translate(-4px, 4px); }
             100% { transform: translate(0, 0); }
         }
 
-        /* CONTROLES TIPO CONSOLE */
+        /* CONTROLES AMPLIADOS */
         .controls { 
-            background: var(--panel); height: 160px;
+            background: var(--panel); 
+            height: 200px; /* Aumentado para caber o joystick maior */
             display: flex; align-items: center; justify-content: center; 
             border-top: 1px solid rgba(255,255,255,0.1); position: relative;
             padding-bottom: env(safe-area-inset-bottom);
         }
 
         .joy-wrapper { display: flex; justify-content: center; align-items: center; }
-        .joy { display: grid; grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(2, 50px); gap: 6px; }
-        .btn-c { width: 50px; height: 50px; background: #1e293b; border: 1px solid #334155; border-radius: 12px; color: #fff; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 0 #0f172a; }
-        .btn-c:active { background: var(--neon); color: #000; transform: translateY(2px); box-shadow: none; }
+        .joy { 
+            display: grid; 
+            grid-template-columns: repeat(3, 65px); /* Botões maiores: 65px */
+            grid-template-rows: repeat(2, 65px); 
+            gap: 8px; 
+        }
+        .btn-c { 
+            width: 65px; height: 65px; 
+            background: #1e293b; border: 1px solid #334155; border-radius: 15px; 
+            color: #fff; font-size: 1.5rem; /* Setas maiores */
+            display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 5px 0 #0f172a; 
+        }
+        .btn-c:active { background: var(--neon); color: #000; transform: translateY(3px); box-shadow: none; }
 
+        /* SKILL NA LATERAL */
         .skill-ring { 
-            position: absolute; right: 20px;
-            width: 75px; height: 75px; border-radius: 50%; border: 3px solid var(--mana); 
+            position: absolute; right: 15px;
+            width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--mana); 
             background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, #020617 100%);
-            color: #fff; font-family: 'Orbitron'; font-weight: 900; font-size: 0.6rem; 
+            color: #fff; font-family: 'Orbitron'; font-weight: 900; font-size: 0.65rem; 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
         }
 
-        .chat-trigger { position: absolute; left: 20px; background: #1e293b; border: 1px solid var(--neon); color: #fff; width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        /* CHAT NA LATERAL */
+        .chat-trigger { 
+            position: absolute; left: 15px; 
+            background: #1e293b; border: 1px solid var(--neon); color: #fff; 
+            width: 55px; height: 55px; border-radius: 12px; 
+            display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+        }
 
         /* MODAIS */
         .modal { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; padding: 25px; text-align: center; }
         .class-btn { background: #1e293b; border: 1px solid #334155; color: #fff; padding: 14px; border-radius: 10px; width: 100%; margin: 4px 0; font-size: 0.8rem; font-weight: bold; }
-        .class-btn.active { border-color: var(--neon); background: rgba(34, 197, 94, 0.15); }
-        .rank-item { display: flex; justify-content: space-between; font-size: 0.85rem; margin: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .class-btn.active { border-color: var(--neon); background: rgba(34, 197, 94, 0.1); }
 
-        #chat-ui { position: fixed; bottom: 0; height: 60%; width: 100%; background: #0f172a; transform: translateY(100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; border-top: 3px solid var(--neon); display: flex; flex-direction: column; }
+        #chat-ui { position: fixed; bottom: 0; height: 60%; width: 100%; background: #0f172a; transform: translateY(100%); transition: 0.4s; z-index: 200; border-top: 3px solid var(--neon); display: flex; flex-direction: column; }
         #chat-ui.open { transform: translateY(0); }
     </style>
 </head>
@@ -90,8 +108,8 @@
         <canvas id="gameCanvas" width="400" height="400"></canvas>
 
         <div id="menu" class="modal">
-            <h1 style="color:var(--neon); font-family:'Orbitron'; margin-bottom:15px;">AETHER ASCENSION</h1>
-            <input type="text" id="nick" placeholder="NOME DO HERÓI" maxlength="10" style="padding:15px; width:100%; background:#000; border:1px solid #334155; color:#fff; border-radius:8px; text-align:center; margin-bottom:12px;">
+            <h1 style="color:var(--neon); font-family:'Orbitron'; font-size: 1.5rem;">SNAKE RPG</h1>
+            <input type="text" id="nick" placeholder="NOME DO HERÓI" maxlength="10" style="padding:15px; width:100%; background:#000; border:1px solid #334155; color:#fff; border-radius:8px; text-align:center; margin-bottom:15px;">
             <button class="class-btn active" onclick="sel('Ladino','#22c55e',this)">⚡ LADINO (SPEED)</button>
             <button class="class-btn" onclick="sel('Guerreiro','#ef4444',this)">🛡️ GUERREIRO (TANK)</button>
             <button class="class-btn" onclick="sel('Mago','#a855f7',this)">🔮 MAGO (BLINK)</button>
@@ -99,8 +117,8 @@
         </div>
 
         <div id="death" class="modal" style="display:none">
-            <h1 style="color:var(--danger); font-family:'Orbitron';">FALHA NA MISSÃO</h1>
-            <p id="pb" style="font-size: 0.7rem; color: var(--gold); font-weight: bold;"></p>
+            <h1 style="color:var(--danger); font-family:'Orbitron';">DERROTADO!</h1>
+            <p id="pb" style="font-size: 0.75rem; color: var(--gold); font-weight: bold;"></p>
             <div id="rank-box" style="width:100%; max-width:260px; margin:15px 0; background:#0f172a; padding:15px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
                 <b style="font-size:0.7rem; color:#94a3b8;">RANKING GLOBAL</b>
                 <div id="rank-list" style="margin-top:10px;"></div>
@@ -136,9 +154,7 @@
 
     <script>
         const cvs = document.getElementById("gameCanvas"), ctx = cvs.getContext("2d"), box = 20;
-        let snake, food, manaOrb, dir, nextDir, score, lvl, mana, speed, loop, running = false;
-        let pClass = { name:'Ladino', color:'#22c55e' }, hero = "", invul = false, audioCtx;
-        let pulse = 0;
+        let snake, food, manaOrb, dir, nextDir, score, lvl, mana, speed, loop, running = false, pClass = { name:'Ladino', color:'#22c55e' }, hero = "", invul = false, audioCtx, pulse = 0;
 
         function beep(f, d, v=0.08) {
             if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -151,10 +167,7 @@
             o.start(); o.stop(audioCtx.currentTime + d);
         }
 
-        function triggerShake() {
-            cvs.classList.add('shake');
-            setTimeout(() => cvs.classList.remove('shake'), 300);
-        }
+        function triggerShake() { cvs.classList.add('shake'); setTimeout(() => cvs.classList.remove('shake'), 300); }
 
         function sel(n, c, el) {
             pClass = { name:n, color:c };
@@ -172,7 +185,7 @@
 
         function init() {
             snake = [{x:10*box, y:10*box}]; dir = nextDir = "RIGHT";
-            score = 0; lvl = 1; mana = 100; speed = 140;
+            score = 0; lvl = 1; mana = 100; speed = 145;
             spawn('food'); spawn('mana'); run();
         }
 
@@ -183,7 +196,7 @@
 
         function mv(d) {
             const op = { UP:'DOWN', DOWN:'UP', LEFT:'RIGHT', RIGHT:'LEFT' };
-            if(d !== op[dir]) { nextDir = d; if(navigator.vibrate) navigator.vibrate(10); }
+            if(d !== op[dir]) { nextDir = d; if(navigator.vibrate) navigator.vibrate(12); }
         }
 
         function skill() {
@@ -218,25 +231,17 @@
 
         function draw() {
             ctx.clearRect(0, 0, 400, 400);
-            pulse = Math.sin(Date.now() / 200) * 5; // Efeito de brilho pulsante
-
-            // Grade Sutil
+            pulse = Math.sin(Date.now() / 200) * 5;
             ctx.strokeStyle = "rgba(255, 255, 255, 0.04)"; 
             for(let i=0; i<=400; i+=box) {
                 ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 400); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(400, i); ctx.stroke();
             }
-
-            // Comida Pulsante
             ctx.fillStyle = "#fff"; ctx.shadowBlur = 10 + pulse; ctx.shadowColor = "#fff";
             ctx.beginPath(); ctx.arc(food.x+10, food.y+10, 6 + pulse/4, 0, Math.PI*2); ctx.fill();
-
-            // Mana Pulsante
             ctx.fillStyle = "#3b82f6"; ctx.shadowColor = "#3b82f6";
             ctx.beginPath(); ctx.arc(manaOrb.x+10, manaOrb.y+10, 5 + pulse/5, 0, Math.PI*2); ctx.fill();
             ctx.shadowBlur = 0;
-
-            // Cobra
             snake.forEach((s, i) => {
                 ctx.fillStyle = invul ? "#fff" : (i === 0 ? "#fff" : pClass.color);
                 ctx.beginPath(); ctx.roundRect(s.x+1, s.y+1, box-2, box-2, 5); ctx.fill();
@@ -252,14 +257,10 @@
         }
 
         async function die() {
-            running = false; clearInterval(loop);
-            triggerShake(); beep(120, 0.5, 0.2); 
-            if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
-            
+            running = false; clearInterval(loop); triggerShake(); beep(120, 0.5, 0.2); 
             const best = localStorage.getItem('rpg_pb') || 0;
-            if(score > best) { localStorage.setItem('rpg_pb', score); document.getElementById('pb').innerText = "NOVO RECORDE PESSOAL!"; }
-            else { document.getElementById('pb').innerText = `Recorde Pessoal: ${best} XP`; }
-
+            if(score > best) localStorage.setItem('rpg_pb', score);
+            document.getElementById('pb').innerText = `Recorde Pessoal: ${Math.max(score, best)} XP`;
             document.getElementById('death').style.display = 'flex';
             await fetch('/save-ranking', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario:hero, pontos:score}) });
             loadRank();
@@ -280,18 +281,15 @@
             } catch(e) {}
         }
 
-        // Estrelas de Fundo
         const sCvs = document.getElementById('starfield'), sCtx = sCvs.getContext('2d');
-        let stars = []; function resz() { sCvs.width = window.innerWidth; sCvs.height = window.innerHeight; stars = Array(120).fill().map(() => ({x:Math.random()*sCvs.width, y:Math.random()*sCvs.height, s:Math.random()*2, a:Math.random()})); }
+        let stars = []; function resz() { sCvs.width = window.innerWidth; sCvs.height = window.innerHeight; stars = Array(100).fill().map(() => ({x:Math.random()*sCvs.width, y:Math.random()*sCvs.height, s:Math.random()*2, a:Math.random()})); }
         function drwS() { sCtx.clearRect(0,0,sCvs.width, sCvs.height); sCtx.fillStyle="#fff"; stars.forEach(s => { s.y+=0.3; if(s.y>sCvs.height) s.y=0; sCtx.globalAlpha=s.a; sCtx.fillRect(s.x, s.y, s.s, s.s); }); requestAnimationFrame(drwS); }
         window.onresize = resz; resz(); drwS();
 
         setInterval(async () => {
             if(document.getElementById('chat-ui').classList.contains('open')) {
-                try {
-                    const r = await fetch('/get-chat'), d = await r.json();
-                    document.getElementById('chat-box').innerHTML = d.map(m => `<div style="margin-bottom:6px"><b style="color:var(--neon)">${m.usuario}:</b> ${m.texto}</div>`).join("");
-                } catch(e) {}
+                const r = await fetch('/get-chat'), d = await r.json();
+                document.getElementById('chat-box').innerHTML = d.map(m => `<div><b style="color:var(--neon)">${m.usuario}:</b> ${m.texto}</div>`).join("");
             }
         }, 3000);
     </script>
