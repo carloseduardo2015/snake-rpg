@@ -1,0 +1,12 @@
+{
+  "name": "snake-rpg-ultra",
+  "version": "1.0.0",
+  "description": "Jogo de Snake RPG com Chat e Ranking",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
