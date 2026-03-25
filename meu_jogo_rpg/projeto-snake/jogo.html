@@ -2,276 +2,249 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SNAKE RPG: ASTRAL ASCENSION</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SNAKE RPG ULTRA - PRO</title>
     <style>
-        :root { 
-            --neon-green: #00ff88; --neon-blue: #00d9ff; --neon-purple: #bc13fe; 
-            --neon-red: #ff3131; --bg-dark: #05070a; --panel-bg: rgba(10, 15, 25, 0.85);
-        }
-        * { touch-action: none; user-select: none; box-sizing: border-box; }
-        body { 
-            margin: 0; background: var(--bg-dark); color: #e2e8f0; 
-            font-family: 'Rajdhani', sans-serif; height: 100vh; overflow: hidden;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-
-        /* BACKGROUND */
-        .stars { position: fixed; inset: 0; background: radial-gradient(circle at center, #111827 0%, #000 100%); z-index: -1; }
-        .grid-overlay { position: fixed; inset: 0; background-image: linear-gradient(rgba(0,255,136,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,136,0.05) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; transform: perspective(500px) rotateX(60deg); transform-origin: top; animation: moveGrid 5s linear infinite; }
-        @keyframes moveGrid { from { background-position: 0 0; } to { background-position: 0 30px; } }
-
-        /* HUD */
-        .hud { 
-            width: 95vw; max-width: 450px; padding: 15px; background: var(--panel-bg); 
-            border: 2px solid #1e293b; border-radius: 15px; margin-bottom: 10px;
-            backdrop-filter: blur(10px); box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            font-family: 'Orbitron', sans-serif;
-        }
-        .stats-main { display: flex; justify-content: space-between; margin-bottom: 10px; }
-        .lvl-badge { background: var(--neon-blue); color: #000; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; }
-        .bar-container { position: relative; height: 12px; background: #000; border-radius: 6px; border: 1px solid #334155; overflow: hidden; margin-bottom: 8px; }
-        .bar-fill { height: 100%; width: 0%; transition: width 0.3s; }
-
-        canvas { 
-            border: 3px solid #1e293b; border-radius: 20px; background: rgba(0,0,0,0.8);
-            max-width: 95vw; max-height: 40vh;
-        }
-
-        .overlay { 
-            position: absolute; inset: 0; background: rgba(5, 7, 10, 0.95); 
-            display: none; flex-direction: column; align-items: center; justify-content: center; 
-            z-index: 100; backdrop-filter: blur(15px); text-align: center; padding: 20px;
-        }
-        .title-glow { font-family: 'Orbitron', sans-serif; font-size: 2rem; text-shadow: 0 0 20px var(--neon-green); margin-bottom: 20px; }
+        :root { --neon: #22c55e; --mana: #3b82f6; --danger: #ef4444; --bg: #020408; }
+        * { touch-action: none; user-select: none; box-sizing: border-box; font-family: 'Orbitron', sans-serif; transition: 0.2s; }
         
-        .class-card {
-            background: rgba(30, 41, 59, 0.5); border: 1px solid #334155; border-radius: 12px;
-            padding: 15px; width: 100px; cursor: pointer; transition: 0.2s;
+        body { 
+            display: flex; flex-direction: column; align-items: center; 
+            height: 100vh; height: 100svh; margin: 0; background: var(--bg); color: #fff; overflow: hidden; 
         }
-        .class-card.selected { border-color: var(--neon-green); background: rgba(0, 255, 136, 0.1); }
 
-        /* CONTROLES */
-        .controls { display: flex; align-items: center; gap: 30px; margin-top: 20px; }
-        .d-pad { display: grid; grid-template-columns: repeat(3, 65px); gap: 8px; }
-        .btn-move { 
-            width: 65px; height: 65px; border-radius: 15px; background: #1e293b; 
-            border: 2px solid #334155; color: white; font-size: 1.5rem;
+        /* HUD Premium */
+        .hud { 
+            width: 100%; padding: 15px; background: linear-gradient(180deg, rgba(15,23,42,1) 0%, rgba(15,23,42,0.8) 100%);
+            border-bottom: 2px solid var(--neon); z-index: 10; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        .stats-row { display: flex; justify-content: space-between; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 8px; }
+        .bar-container { height: 10px; background: #000; border-radius: 5px; border: 1px solid #334155; overflow: hidden; margin-bottom: 5px; position: relative; }
+        .bar-fill { height: 100%; width: 0%; transition: 0.5s ease-out; box-shadow: 0 0 10px inherit; }
+
+        /* Container do Jogo */
+        #game-wrapper { 
+            flex: 1; display: flex; align-items: center; justify-content: center; 
+            width: 100%; padding: 10px; position: relative;
+            background: radial-gradient(circle at center, #0f172a 0%, #020408 100%);
+        }
+        canvas { 
+            background: #000; border: 4px solid #1e293b; border-radius: 15px;
+            max-width: 100%; max-height: 100%; aspect-ratio: 1/1; 
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+        }
+
+        /* Joystiq Moderno */
+        .controls-area { 
+            width: 100%; background: #070a13; border-top: 1px solid #1e293b;
+            padding: 20px 15px calc(20px + env(safe-area-inset-bottom));
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .d-pad { display: grid; grid-template-columns: repeat(3, 65px); gap: 10px; }
+        .btn-joy { 
+            width: 65px; height: 65px; border-radius: 18px; border: 2px solid #1e293b;
+            background: #111827; color: #94a3b8; font-size: 1.5rem;
             display: flex; align-items: center; justify-content: center;
+            box-shadow: 4px 4px 0px #000;
         }
-        .skill-circle {
-            width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--neon-purple);
-            background: radial-gradient(circle, #2e1065, #000); color: white; font-weight: bold;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        .btn-joy:active { 
+            background: var(--neon); color: #000; transform: translate(2px, 2px); 
+            box-shadow: 0px 0px 20px var(--neon); border-color: #fff;
         }
-        .skill-circle.ready { animation: pulseSkill 1.5s infinite; }
-        @keyframes pulseSkill { 0%, 100% { box-shadow: 0 0 0px var(--neon-purple); } 50% { box-shadow: 0 0 20px var(--neon-purple); } }
 
-        /* CHAT & RANK */
-        #chat-btn { position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; border-radius: 30px; border: none; background: var(--neon-blue); color: #000; font-family: 'Orbitron'; z-index: 50; }
-        #chat-panel { 
-            position: fixed; bottom: 85px; right: 20px; width: 280px; height: 300px;
-            background: var(--panel-bg); border: 2px solid var(--neon-blue); border-radius: 15px;
-            display: none; flex-direction: column; backdrop-filter: blur(10px); z-index: 50;
+        .skill-zone { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        .skill-btn { 
+            width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--mana);
+            background: #0f172a; color: var(--mana); font-weight: bold;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem;
         }
-        #chat-messages { flex: 1; overflow-y: auto; padding: 10px; font-size: 0.8rem; }
-        #rank-panel { 
-            position: fixed; top: 20px; left: 20px; width: 180px;
-            background: rgba(0,0,0,0.6); border-left: 3px solid var(--neon-green);
-            padding: 10px; font-size: 0.75rem; border-radius: 0 10px 10px 0; z-index: 40;
+        .skill-btn:active:not(:disabled) { transform: scale(0.9); filter: brightness(1.5); }
+        .skill-btn:disabled { opacity: 0.3; filter: grayscale(1); }
+
+        /* Overlays */
+        .overlay { 
+            position: absolute; inset: 0; background: rgba(2, 4, 8, 0.98); 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            z-index: 100; padding: 30px; backdrop-filter: blur(10px);
         }
     </style>
 </head>
 <body>
-    <div class="stars"></div>
-    <div class="grid-overlay"></div>
-
-    <div id="rank-panel">
-        <div style="color:var(--neon-green); font-weight:bold; margin-bottom:5px">TOP ASCENDED</div>
-        <div id="rank-list">Carregando...</div>
-    </div>
 
     <div class="hud">
-        <div class="stats-main">
-            <div><span class="lvl-badge">LVL <span id="lvl">1</span></span> <span id="p-class-tag" style="margin-left:10px;"></span></div>
-            <div style="color:var(--neon-green)">XP: <span id="score">0</span></div>
+        <div class="stats-row">
+            <span id="p-class" style="text-shadow: 0 0 10px var(--neon)">AGUARDANDO...</span>
+            <span>XP: <span id="score">0</span> | LVL: <span id="lvl">1</span></span>
         </div>
-        <div class="bar-container"><div id="xp-bar" class="bar-fill" style="background:var(--neon-green)"></div></div>
-        <div class="bar-container"><div id="mana-bar" class="bar-fill" style="background:var(--neon-purple); width:100%"></div></div>
+        <div class="bar-container"><div id="xp-fill" class="bar-fill" style="background:var(--neon); box-shadow: 0 0 15px var(--neon);"></div></div>
+        <div class="bar-container"><div id="mana-fill" class="bar-fill" style="background:var(--mana); box-shadow: 0 0 15px var(--mana); width:100%"></div></div>
     </div>
 
-    <div style="position: relative;">
+    <div id="game-wrapper">
         <canvas id="gameCanvas" width="400" height="400"></canvas>
-
-        <div id="start-screen" class="overlay" style="display: flex;">
-            <h1 class="title-glow">SNAKE RPG</h1>
-            <p>ESCOLHA SEU DESTINO</p>
-            <div style="display: flex; gap: 10px; margin: 20px 0;">
-                <div class="class-card" onclick="selectClass('Guerreiro', '#ff3131', '🛡️')">🛡️<br><small>GUERREIRO</small></div>
-                <div class="class-card" onclick="selectClass('Mago', '#bc13fe', '🔮')">🔮<br><small>MAGO</small></div>
-                <div class="class-card" onclick="selectClass('Ladino', '#00ff88', '⚡')">⚡<br><small>LADINO</small></div>
+        
+        <div id="start-screen" class="overlay">
+            <h1 style="color:var(--neon); text-shadow: 0 0 20px var(--neon); margin-bottom:30px;">SNAKE RPG PRO</h1>
+            <input type="text" id="player-name" placeholder="NOME DO HERÓI" maxlength="12" style="padding:15px; width:100%; background:#000; border:2px solid #334155; color:var(--neon); border-radius:10px; margin-bottom:20px; text-align:center; font-size:1.2rem;">
+            <div style="width:100%; display:grid; gap:10px;">
+                <button class="btn-joy" style="width:100%; height:50px; border-radius:10px; font-size:0.9rem;" onclick="setPlayer('Guerreiro','#ef4444')">⚔️ GUERREIRO (TANK)</button>
+                <button class="btn-joy" style="width:100%; height:50px; border-radius:10px; font-size:0.9rem;" onclick="setPlayer('Mago','#a855f7')">🔮 MAGO (BLINK)</button>
+                <button class="btn-joy" style="width:100%; height:50px; border-radius:10px; font-size:0.9rem;" onclick="setPlayer('Ladino','#22c55e')">⚡ LADINO (SPEED)</button>
             </div>
-            <input type="text" id="p-name" placeholder="NOME DO HERÓI" style="background:#000; border:1px solid #334155; color:white; padding:10px; border-radius:5px; text-align:center;">
-            <button onclick="startGame()" style="margin-top:20px; padding:15px 40px; background:var(--neon-green); border:none; border-radius:5px; font-weight:bold; cursor:pointer">INICIAR ASCENSÃO</button>
         </div>
 
-        <div id="die-screen" class="overlay">
-            <h1 style="color:var(--neon-red)">VOCÊ CAIU</h1>
-            <p id="final-stats"></p>
-            <button onclick="location.reload()" style="padding:15px 40px; border:2px solid var(--neon-blue); color:white; background:none; cursor:pointer">REENCARNAR</button>
+        <div id="die-screen" class="overlay" style="display:none">
+            <h1 style="color:var(--danger); text-shadow: 0 0 20px var(--danger);">MISSÃO FALHOU</h1>
+            <div id="rank-box" style="margin:20px 0; background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; width:100%;"></div>
+            <button onclick="location.reload()" style="padding:15px 50px; background:var(--neon); border:none; border-radius:10px; font-weight:bold; cursor:pointer;">RECOMEÇAR ASCENSÃO</button>
         </div>
     </div>
 
-    <div class="controls">
+    <div class="controls-area">
         <div class="d-pad">
-            <button class="btn-move" style="grid-column:2" onpointerdown="setDir('UP')">▲</button>
-            <button class="btn-move" style="grid-column:1; grid-row:2" onpointerdown="setDir('LEFT')">◀</button>
-            <button class="btn-move" style="grid-column:3; grid-row:2" onpointerdown="setDir('RIGHT')">▶</button>
-            <button class="btn-move" style="grid-column:2; grid-row:3" onpointerdown="setDir('DOWN')">▼</button>
+            <button class="btn-joy" style="grid-column:2" onpointerdown="move('UP')">▲</button>
+            <button class="btn-joy" style="grid-column:1" onpointerdown="move('LEFT')">◀</button>
+            <button class="btn-joy" style="grid-column:3" onpointerdown="move('RIGHT')">▶</button>
+            <button class="btn-joy" style="grid-column:2" onpointerdown="move('DOWN')">▼</button>
         </div>
-        <button id="skill-btn" class="skill-circle" onclick="useSkill()"><span>✨</span><small>SKILL</small></button>
-    </div>
-
-    <button id="chat-btn" onclick="toggleChat()">💬 CHAT</button>
-    <div id="chat-panel">
-        <div id="chat-messages"></div>
-        <input type="text" id="chat-input" placeholder="Mensagem..." onkeypress="if(event.key==='Enter') sendChat()" style="background:#000; border:none; border-top:1px solid var(--neon-blue); color:white; padding:10px;">
+        <div class="skill-zone">
+            <button id="skill-btn" class="skill-btn" onclick="cast()">
+                <span id="skill-label">SKILL</span>
+                <small id="mana-cost">40 MP</small>
+            </button>
+            <button class="btn-joy" style="width:80px; height:35px; border-radius:20px; font-size:0.7rem;" onclick="toggleChat()">💬 CHAT</button>
+        </div>
     </div>
 
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
         const box = 20;
-        let snake, foods, d, nextD, loop, score, lvl, speed, mana, invul, pClass, pColor, pIcon, pName;
 
-        const audio = new (window.AudioContext || window.webkitAudioContext)();
-        function sfx(f, t, d, v=0.1) {
-            const o = audio.createOscillator(); const g = audio.createGain();
-            o.type = t; o.frequency.setValueAtTime(f, audio.currentTime);
-            g.gain.setValueAtTime(v, audio.currentTime); g.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + d);
-            o.connect(g); g.connect(audio.destination); o.start(); o.stop(audio.currentTime + d);
-        }
+        let snake, food, manaOrb, d, nextD, score, level, mana, speed, loop;
+        let pClass = { name:'', color:'' }, pName = "", isPaused = true, invul = false;
 
-        function selectClass(c, col, icon) {
-            pClass = c; pColor = col; pIcon = icon;
-            document.querySelectorAll('.class-card').forEach(card => card.classList.remove('selected'));
-            event.currentTarget.classList.add('selected');
-            sfx(440, 'sine', 0.2);
-        }
-
-        function startGame() {
-            pName = document.getElementById('p-name').value || "Exilado";
-            if(!pClass) return alert("Escolha uma classe!");
-            if(audio.state === 'suspended') audio.resume();
+        function setPlayer(n, c) {
+            pName = document.getElementById('player-name').value.trim() || "Herói";
+            pClass = { name: n, color: c };
+            document.documentElement.style.setProperty('--neon', c);
+            document.getElementById('p-class').innerText = `${n.toUpperCase()} : ${pName}`;
             document.getElementById('start-screen').style.display = 'none';
-            document.getElementById('p-class-tag').innerText = `${pIcon} ${pClass.toUpperCase()}`;
-            document.getElementById('p-class-tag').style.color = pColor;
-            initGame();
+            init();
         }
 
-        function initGame() {
-            snake = [{x: 10*box, y: 10*box}]; foods = [];
-            for(let i=0; i<3; i++) spawnFood();
-            score = 0; lvl = 1; speed = 130; mana = 100; d = "RIGHT"; nextD = "RIGHT"; invul = false;
-            updateUI(); run();
+        function init() {
+            snake = [{x:10*box, y:10*box}, {x:9*box, y:10*box}]; 
+            d="RIGHT"; nextD="RIGHT"; score=0; level=1; mana=100; speed=130;
+            spawn('food'); spawn('mana');
+            isPaused = false;
+            updateHUD();
+            run();
         }
 
-        function spawnFood() {
-            const types = [{c:'#fff',s:1,m:5}, {c:'#00d9ff',s:3,m:20}, {c:'#bc13fe',s:5,m:50}];
-            const r = Math.random();
-            const type = r > 0.9 ? types[2] : (r > 0.7 ? types[1] : types[0]);
-            foods.push({ x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box, ...type });
+        function spawn(t) {
+            const p = { x: Math.floor(Math.random()*19)*box, y: Math.floor(Math.random()*19)*box };
+            if(t==='food') food = p; else manaOrb = p;
         }
 
-        function setDir(v) {
-            if(v==='UP' && d!=='DOWN') nextD='UP'; if(v==='DOWN' && d!=='UP') nextD='DOWN';
-            if(v==='LEFT' && d!=='RIGHT') nextD='LEFT'; if(v==='RIGHT' && d!=='LEFT') nextD='RIGHT';
+        function move(dir) {
+            if(dir==="UP" && d!=="DOWN") nextD="UP";
+            if(dir==="DOWN" && d!=="UP") nextD="DOWN";
+            if(dir==="LEFT" && d!=="RIGHT") nextD="LEFT";
+            if(dir==="RIGHT" && d!=="LEFT") nextD="RIGHT";
         }
 
-        function useSkill() {
-            if(mana < 50) return sfx(150, 'square', 0.1);
-            mana -= 50; sfx(800, 'sawtooth', 0.3);
-            if(pClass === 'Guerreiro') { invul = true; setTimeout(() => invul = false, 3000); }
-            else if(pClass === 'Mago') { snake[0].x = foods[0].x; snake[0].y = foods[0].y; }
-            else { let os = speed; speed = 40; run(); setTimeout(() => { speed = os; run(); }, 2000); }
-            updateUI();
+        function cast() {
+            if(mana < 40 || isPaused) return;
+            mana -= 40; invul = true;
+            if(pClass.name === 'Mago') { snake[0].x = food.x; snake[0].y = food.y; }
+            if(pClass.name === 'Ladino') { speed = 40; run(); }
+            
+            setTimeout(() => { 
+                invul = false; 
+                if(pClass.name === 'Ladino') { speed = 130 - (level*8); run(); }
+            }, 3000);
+            updateHUD();
         }
 
-        function updateUI() {
+        function updateHUD() {
             document.getElementById('score').innerText = score;
-            document.getElementById('lvl').innerText = lvl;
-            document.getElementById('xp-bar').style.width = (score % 10) * 10 + "%";
-            document.getElementById('mana-bar').style.width = mana + "%";
-            document.getElementById('skill-btn').classList.toggle('ready', mana >= 50);
+            document.getElementById('lvl').innerText = level;
+            document.getElementById('xp-fill').style.width = (score % 10) * 10 + "%";
+            document.getElementById('mana-fill').style.width = mana + "%";
+            document.getElementById('skill-btn').disabled = mana < 40;
         }
 
         function draw() {
-            d = nextD; ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
-            foods.forEach(f => {
-                ctx.fillStyle = f.c; ctx.shadowBlur = 10; ctx.shadowColor = f.c;
-                ctx.beginPath(); ctx.arc(f.x+10, f.y+10, 6, 0, Math.PI*2); ctx.fill();
-            });
-            snake.forEach((s, i) => {
-                ctx.fillStyle = i === 0 ? "#fff" : (invul ? "white" : pColor);
-                ctx.shadowBlur = 10; ctx.shadowColor = pColor;
-                ctx.fillRect(s.x+1, s.y+1, box-2, box-2);
-            });
+            if(isPaused) return;
+            d = nextD;
+            
+            // Fundo Dinâmico
+            ctx.fillStyle = "#020408"; ctx.fillRect(0,0,400,400);
+
+            // Grade de Precisão
+            ctx.strokeStyle = "#ffffff08"; 
+            for(let i=0; i<=400; i+=box) {
+                ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,400); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(400,i); ctx.stroke();
+            }
+
+            // Itens com Brilho
+            ctx.shadowBlur = 15;
+            ctx.fillStyle = "#fff"; ctx.shadowColor = "#fff";
+            ctx.fillRect(food.x+4, food.y+4, 12, 12);
+            ctx.fillStyle = "#3b82f6"; ctx.shadowColor = "#3b82f6";
+            ctx.beginPath(); ctx.arc(manaOrb.x+10, manaOrb.y+10, 6, 0, Math.PI*2); ctx.fill();
             ctx.shadowBlur = 0;
 
-            let hX = snake[0].x, hY = snake[0].y;
-            if(d==="LEFT") hX -= box; if(d==="UP") hY -= box;
-            if(d==="RIGHT") hX += box; if(d==="DOWN") hY += box;
-
-            if(hX < 0 || hX >= 400 || hY < 0 || hY >= 400 || (!invul && snake.some(s => s.x === hX && s.y === hY))) return die();
-
-            let ate = false;
-            foods.forEach((f, idx) => {
-                if(hX === f.x && hY === f.y) {
-                    score += f.s; mana = Math.min(100, mana + f.m);
-                    sfx(600, 'sine', 0.1); foods.splice(idx, 1); spawnFood(); ate = true;
-                    if(score % 10 === 0) { lvl++; speed = Math.max(50, speed - 8); run(); }
+            // Cobra RPG
+            snake.forEach((s,i) => {
+                ctx.fillStyle = invul ? "#fff" : (i===0 ? "#fff" : pClass.color);
+                if(i===0) { // Cabeça com olhos
+                    ctx.fillRect(s.x, s.y, box, box);
+                    ctx.fillStyle = "#000";
+                    ctx.fillRect(s.x+4, s.y+4, 4, 4); ctx.fillRect(s.x+12, s.y+4, 4, 4);
+                } else {
+                    ctx.fillRect(s.x+2, s.y+2, box-4, box-4);
                 }
             });
-            if(!ate) snake.pop();
-            snake.unshift({x: hX, y: hY});
-            updateUI();
+
+            let hX = snake[0].x, hY = snake[0].y;
+            if(d==="UP") hY-=box; if(d==="DOWN") hY+=box; if(d==="LEFT") hX-=box; if(d==="RIGHT") hX+=box;
+
+            // Colisão
+            if(hX<0 || hX>=400 || hY<0 || hY>=400 || (!invul && snake.some(s=>s.x===hX && s.y===hY))) {
+                die(); return;
+            }
+
+            if(hX===food.x && hY===food.y) {
+                score++; spawn('food');
+                if(score%10===0) { level++; speed=Math.max(40, speed-8); run(); }
+            } else if(hX===manaOrb.x && hY===manaOrb.y) {
+                mana = Math.min(100, mana+35); spawn('mana');
+            } else {
+                snake.pop();
+                mana = Math.min(100, mana + 0.2); // Regeneração passiva de mana
+            }
+            snake.unshift({x:hX, y:hY});
+            updateHUD();
         }
 
         function run() { clearInterval(loop); loop = setInterval(draw, speed); }
 
         async function die() {
-            clearInterval(loop); sfx(100, 'sawtooth', 0.5);
+            isPaused = true; clearInterval(loop);
             document.getElementById('die-screen').style.display = 'flex';
-            document.getElementById('final-stats').innerText = `Nível ${lvl} | XP ${score}`;
-            await fetch('/save-ranking', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ nome: pName, pontos: score }) });
-            loadRank();
+            await fetch('/save-ranking', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario:pName, pontos:score}) });
+            loadRanking();
         }
 
-        function loadRank() {
-            fetch('/get-ranking').then(r => r.json()).then(data => {
-                document.getElementById('rank-list').innerHTML = data.map((r,i) => `<div>${i+1}. ${r.nome} - ${r.pontos}</div>`).join("");
-            });
+        async function loadRanking() {
+            const r = await fetch('/get-ranking'); const data = await r.json();
+            document.getElementById('rank-box').innerHTML = "<b>ASCENDIDOS:</b><br>" + data.slice(0,5).map(m => `${m.usuario}: ${m.pontos} XP`).join("<br>");
         }
-
-        function sendChat() {
-            const i = document.getElementById('chat-input'); if(!i.value) return;
-            fetch('/send-chat', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ usuario: pName, texto: i.value }) });
-            i.value = "";
-        }
-
-        function toggleChat() {
-            const p = document.getElementById('chat-panel'); p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
-        }
-
-        setInterval(() => {
-            if(document.getElementById('chat-panel').style.display === 'flex') {
-                fetch('/get-chat').then(r => r.json()).then(data => {
-                    document.getElementById('chat-messages').innerHTML = data.map(m => `<div><b>${m.usuario}:</b> ${m.texto}</div>`).join("");
-                });
-            }
-        }, 2000);
-        loadRank();
     </script>
 </body>
 </html>
