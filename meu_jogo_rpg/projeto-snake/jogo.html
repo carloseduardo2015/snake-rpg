@@ -18,37 +18,31 @@
 
         #starfield { position: fixed; inset: 0; z-index: -1; }
 
-        /* HUD */
         .hud { padding: 12px 20px; background: var(--panel); border-bottom: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
         .stats-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
         .bar-outer { height: 6px; background: #000; border-radius: 3px; overflow: hidden; margin-bottom: 5px; border: 1px solid rgba(255,255,255,0.05); }
         .bar-inner { height: 100%; width: 0%; transition: 0.3s; }
 
-        /* JOGO - CORREÇÃO DA GRADE DUPLA */
         #viewport { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; }
         canvas#gameCanvas { 
             width: 90vw; height: 90vw; 
             max-width: 400px; max-height: 400px;
-            border: 1px solid rgba(255, 255, 255, 0.15); /* Borda única e fina */
+            border: 1px solid rgba(255, 255, 255, 0.15); 
             border-radius: 8px; background: rgba(0,0,0,0.3);
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
-        /* OVERLAYS */
         .modal { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; padding: 25px; text-align: center; }
         .class-btn { background: #1e293b; border: 1px solid #334155; color: #fff; padding: 15px; border-radius: 12px; width: 100%; margin: 5px 0; font-size: 0.8rem; font-weight: bold; }
         .class-btn.active { border-color: var(--neon); background: rgba(34, 197, 94, 0.1); }
         
-        /* RANKING */
         .rank-card { background: #0f172a; padding: 20px; border-radius: 15px; width: 100%; max-width: 280px; margin: 15px 0; border: 1px solid rgba(255,255,255,0.1); }
         .rank-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; }
 
-        /* CONTROLES */
         .controls { background: var(--panel); padding: 15px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); }
         .joy { display: grid; grid-template-columns: repeat(3, 55px); gap: 5px; }
         .btn-c { width: 55px; height: 55px; background: #1e293b; border: 1px solid #334155; border-radius: 12px; color: #fff; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
         .btn-c:active { background: var(--neon); color: #000; }
-        .skill-ring { width: 85px; height: 85px; border-radius: 50%; border: 4px solid var(--mana); background: #020617; color: var(--mana); font-family: 'Orbitron'; font-weight: 900; font-size: 0.7rem; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+        .skill-ring { width: 85px; height: 85px; border-radius: 50%; border: 4px solid var(--mana); background: #020617; color: var(--mana); font-family: 'Orbitron'; font-weight: 900; font-size: 0.7rem; }
 
         #chat-ui { position: fixed; bottom: 0; height: 55%; width: 100%; background: #0f172a; transform: translateY(100%); transition: 0.4s; z-index: 200; border-top: 3px solid var(--neon); display: flex; flex-direction: column; }
         #chat-ui.open { transform: translateY(0); }
@@ -116,6 +110,22 @@
 
         let snake, food, manaOrb, dir, nextDir, score, lvl, mana, speed, loop, running = false;
         let pClass = { name:'Ladino', color:'#22c55e' }, hero = "", invul = false;
+        let audioCtx;
+
+        // FUNÇÃO DE SOM SÊNIOR
+        function beep(freq, dur, vol = 0.1) {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.connect(g); g.connect(audioCtx.destination);
+            osc.frequency.value = freq;
+            osc.type = 'square';
+            g.gain.setValueAtTime(vol, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+            osc.start(); osc.stop(audioCtx.currentTime + dur);
+        }
 
         function sel(n, c, el) {
             pClass = { name:n, color:c };
@@ -125,6 +135,7 @@
         }
 
         function start() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             hero = document.getElementById('nick').value || "Exilado";
             document.getElementById('menu').style.display = 'none';
             running = true; init();
@@ -150,6 +161,7 @@
         function skill() {
             if(mana < 40 || !running) return;
             mana -= 40; invul = true;
+            beep(800, 0.2); // Som de Skill
             if(pClass.name === 'Mago') { snake[0].x = food.x; snake[0].y = food.y; }
             setTimeout(() => invul = false, 3000);
         }
@@ -167,10 +179,12 @@
 
             if(head.x === food.x && head.y === food.y) {
                 score += 10; spawn('food');
+                beep(600, 0.1); // Som de Comida
                 if (navigator.vibrate) navigator.vibrate(25);
                 if(score % 50 === 0) { lvl++; speed = Math.max(50, speed-10); run(); }
             } else if(head.x === manaOrb.x && head.y === manaOrb.y) {
                 mana = Math.min(100, mana + 40); spawn('mana');
+                beep(400, 0.15); // Som de Mana
             } else {
                 snake.pop(); mana = Math.min(100, mana + 0.1);
             }
@@ -181,7 +195,7 @@
         function draw() {
             ctx.clearRect(0, 0, 400, 400);
             
-            // CORREÇÃO DA GRADE INTERNA
+            // GRADE CORRIGIDA
             ctx.strokeStyle = "rgba(255, 255, 255, 0.04)"; 
             ctx.lineWidth = 1;
             for(let i=0; i<=400; i+=box) {
@@ -212,6 +226,7 @@
 
         async function die() {
             running = false; clearInterval(loop);
+            beep(150, 0.5, 0.2); // Som de Derrota
             if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
 
             const localPB = localStorage.getItem('rpg_pb') || 0;
