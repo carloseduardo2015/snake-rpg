@@ -7,42 +7,36 @@ const PORT = process.env.PORT || 10000;
 app.use(express.json());
 app.use(express.static(__dirname));
 
-const initFile = (name) => { if (!fs.existsSync(name)) fs.writeFileSync(name, '[]'); };
-initFile('ranking.json');
-initFile('chat.json');
+const DB_RANK = path.join(__dirname, 'ranking.json');
+const DB_CHAT = path.join(__dirname, 'chat.json');
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'jogo.html'));
-});
+const initFile = (f) => { if (!fs.existsSync(f)) fs.writeFileSync(f, '[]'); };
+initFile(DB_RANK); initFile(DB_CHAT);
+
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'jogo.html')));
 
 app.post('/save-ranking', (req, res) => {
     try {
-        let dados = JSON.parse(fs.readFileSync('ranking.json', 'utf8') || "[]");
-        dados.push(req.body); 
-        dados.sort((a, b) => b.pontos - a.pontos);
-        fs.writeFileSync('ranking.json', JSON.stringify(dados.slice(0, 10), null, 2));
-        res.json({ success: true });
-    } catch (e) { res.status(500).send(e); }
+        let data = JSON.parse(fs.readFileSync(DB_RANK, 'utf8') || "[]");
+        data.push(req.body);
+        data.sort((a, b) => b.pontos - a.pontos);
+        fs.writeFileSync(DB_RANK, JSON.stringify(data.slice(0, 10)));
+        res.sendStatus(200);
+    } catch(e) { res.status(500).send(e); }
 });
 
-app.get('/get-ranking', (req, res) => {
-    res.send(fs.readFileSync('ranking.json', 'utf8') || "[]");
-});
+app.get('/get-ranking', (req, res) => res.json(JSON.parse(fs.readFileSync(DB_RANK, 'utf8') || "[]")));
 
 app.post('/send-chat', (req, res) => {
     try {
-        let msgs = JSON.parse(fs.readFileSync('chat.json', 'utf8') || "[]");
-        msgs.push(req.body);
-        if (msgs.length > 30) msgs.shift();
-        fs.writeFileSync('chat.json', JSON.stringify(msgs, null, 2));
-        res.json({ success: true });
-    } catch (e) { res.status(500).send(e); }
+        let msgs = JSON.parse(fs.readFileSync(DB_CHAT, 'utf8') || "[]");
+        msgs.push({ ...req.body, time: new Date() });
+        if(msgs.length > 30) msgs.shift();
+        fs.writeFileSync(DB_CHAT, JSON.stringify(msgs));
+        res.sendStatus(200);
+    } catch(e) { res.status(500).send(e); }
 });
 
-app.get('/get-chat', (req, res) => {
-    res.send(fs.readFileSync('chat.json', 'utf8') || "[]");
-});
+app.get('/get-chat', (req, res) => res.json(JSON.parse(fs.readFileSync(DB_CHAT, 'utf8') || "[]")));
 
-app.listen(PORT, () => {
-    console.log(`Astral Ascension Ativo na porta ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
