@@ -16,7 +16,7 @@
             font-family: 'Rajdhani', sans-serif; height: 100svh; display: flex; flex-direction: column;
         }
 
-        #starfield { position: fixed; inset: 0; z-index: -1; opacity: 0.4; }
+        #starfield { position: fixed; inset: 0; z-index: -1; opacity: 0.6; }
 
         /* HUD PREMIUM */
         .hud { 
@@ -44,11 +44,12 @@
             border-radius: 20px; background: rgba(0,0,0,0.8);
             box-shadow: 0 0 40px rgba(34, 197, 94, 0.1);
             transition: 0.5s;
+            display: none; /* Só aparece ao iniciar */
         }
 
         /* MENU INICIAL */
         .modal { 
-            position: absolute; inset: 0; background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+            position: absolute; inset: 0; background: transparent;
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             z-index: 100; padding: 40px;
         }
@@ -56,16 +57,18 @@
             font-family: 'Orbitron'; font-size: 2.5rem; font-weight: 900; color: #fff;
             letter-spacing: 6px; margin-bottom: 40px; text-align: center;
             background: linear-gradient(to bottom, #fff 40%, var(--neon)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px var(--neon));
         }
         .class-card { 
-            background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.1); 
-            padding: 20px; border-radius: 15px; width: 100%; margin: 10px 0; 
+            background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.1); 
+            padding: 20px; border-radius: 15px; width: 100%; max-width: 320px; margin: 10px 0; 
             transition: 0.3s; display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer;
         }
-        .class-card.active { border-color: var(--neon); background: rgba(34, 197, 94, 0.1); box-shadow: 0 0 20px rgba(34, 197, 94, 0.2); }
+        .class-card.active { border-color: var(--neon); background: rgba(34, 197, 94, 0.2); box-shadow: 0 0 20px rgba(34, 197, 94, 0.2); }
 
         /* CONTROLES ESPAÇADOS */
-        .controls { height: 260px; display: flex; align-items: center; justify-content: center; position: relative; padding: 0 20px; }
+        .controls { height: 260px; display: none; align-items: center; justify-content: center; position: relative; padding: 0 20px; z-index: 60; }
         .joy { display: grid; grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 15px; }
         .btn-c { 
             width: 75px; height: 75px; background: #1e293b; border: 1px solid #334155; 
@@ -75,7 +78,7 @@
         .btn-c:active { transform: translateY(4px); box-shadow: 0 2px 0 #020617; background: var(--neon); color: #000; }
 
         .skill-btn { 
-            position: absolute; right: 15px; top: 20px; /* Longe das setas laterais */
+            position: absolute; right: 15px; top: 20px;
             width: 85px; height: 85px; border-radius: 24px; 
             border: 2px solid var(--mana); background: var(--glass); color: #fff; 
             font-family: 'Orbitron'; font-weight: 900; font-size: 0.65rem;
@@ -85,9 +88,8 @@
 
         @keyframes pulse-ready { 0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.6); } 70% { box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } }
 
-        /* CHAT SLIDE */
         #chat-ui { 
-            position: fixed; top: 0; height: 80%; width: 100%; background: var(--bg); 
+            position: fixed; top: 0; height: 100%; width: 100%; background: var(--bg); 
             transform: translateY(-100%); transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1); 
             z-index: 2000; border-bottom: 2px solid var(--neon); display: flex; flex-direction: column; 
         }
@@ -114,7 +116,7 @@
 
         <div id="menu" class="modal">
             <div class="title-glitch">ASCENSION</div>
-            <input type="text" id="nick" placeholder="NOME DO HERÓI" maxlength="12" style="padding:20px; width:100%; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.1); color:var(--neon); border-radius:15px; text-align:center; margin-bottom:25px; font-family:'Orbitron'; font-size:0.9rem; letter-spacing:2px;">
+            <input type="text" id="nick" placeholder="NOME DO HERÓI" maxlength="12" style="padding:20px; width:100%; max-width:320px; background:rgba(0,0,0,0.7); border:1px solid var(--neon); color:#fff; border-radius:15px; text-align:center; margin-bottom:25px; font-family:'Orbitron';">
             
             <div class="class-card active" onclick="sel('Ladino','#22c55e',this)">
                 <div><b style="display:block">LADINO</b><small style="opacity:0.6">+ VELOCIDADE</small></div>
@@ -129,20 +131,16 @@
                 <span style="font-size:1.5rem">🔮</span>
             </div>
 
-            <button onclick="start()" style="margin-top:40px; width:100%; padding:22px; border:none; border-radius:18px; background:var(--neon); color:#000; font-weight:900; font-family:'Orbitron'; font-size:1.1rem; box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);">INICIAR JORNADA</button>
+            <button onclick="start()" style="margin-top:30px; width:100%; max-width:320px; padding:22px; border:none; border-radius:18px; background:var(--neon); color:#000; font-weight:900; font-family:'Orbitron'; font-size:1.1rem; box-shadow: 0 10px 20px rgba(34, 197, 94, 0.4); cursor:pointer;">INICIAR JORNADA</button>
         </div>
 
         <div id="death" class="modal" style="display:none; background:rgba(2,6,23,0.98)">
-            <h1 style="color:var(--danger); font-family:'Orbitron'; letter-spacing:8px; font-size:2rem;">FIM</h1>
-            <div id="rank-box" style="width:100%; max-width:320px; margin:30px 0; background:rgba(255,255,255,0.03); padding:25px; border-radius:20px; border:1px solid rgba(255,255,255,0.05);">
-                <b style="color:var(--gold); font-size:0.7rem; letter-spacing:3px; display:block; margin-bottom:15px; text-align:center;">HALL DA FAMA</b>
-                <div id="rank-list"></div>
-            </div>
-            <button onclick="location.reload()" style="padding:20px 60px; border-radius:50px; border:none; background:#fff; color:#000; font-weight:900; font-family:'Orbitron';">TENTAR NOVAMENTE</button>
+            <h1 style="color:var(--danger); font-family:'Orbitron'; letter-spacing:8px; font-size:2rem;">FIM DA JORNADA</h1>
+            <button onclick="location.reload()" style="padding:20px 60px; border-radius:50px; border:none; background:#fff; color:#000; font-weight:900; font-family:'Orbitron'; margin-top: 20px;">TENTAR NOVAMENTE</button>
         </div>
     </div>
 
-    <div class="controls">
+    <div class="controls" id="ctrl-layer">
         <div class="joy">
             <button class="btn-c" style="grid-column:2; grid-row:1;" onpointerdown="mv('UP')">▲</button>
             <button class="btn-c" style="grid-column:1; grid-row:2;" onpointerdown="mv('LEFT')">◀</button>
@@ -152,37 +150,35 @@
         <button id="skill-btn" class="skill-btn" onclick="skill()">SKILL<br><small>40 MP</small></button>
     </div>
 
-    <div id="chat-ui">
-        <div style="padding:25px; background:rgba(255,255,255,0.03); display:flex; justify-content:space-between; align-items:center;">
-            <b style="font-family:'Orbitron'; color:var(--neon); letter-spacing:2px;">TAVERNA GLOBAL</b> 
-            <span onclick="tgChat()" style="font-size:2rem; cursor:pointer; opacity:0.5">×</span>
-        </div>
-        <div id="chat-box" style="flex:1; overflow-y:auto; padding:25px; font-size:0.95rem;"></div>
-        <div style="padding:20px; display:flex; gap:12px; background:rgba(0,0,0,0.3);">
-            <input type="text" id="chat-in" placeholder="Sussurrar..." style="flex:1; padding:18px; border-radius:15px; border:1px solid rgba(255,255,255,0.1); background:#0f172a; color:#fff;">
-            <button onclick="send()" style="background:var(--neon); border:none; padding:0 25px; border-radius:15px; font-weight:900; font-family:'Orbitron'; font-size:0.7rem;">ENVIAR</button>
-        </div>
-    </div>
-
     <script>
         const cvs = document.getElementById("gameCanvas"), ctx = cvs.getContext("2d"), box = 20;
         let snake, foods = [], manaOrb, dir, nextDir, score, lvl, mana, speed, loop, running = false;
         let pClass = { name:'Ladino', color:'#22c55e' }, hero = "", invul = false, audioCtx;
 
+        // Estrelas
+        const sCvs = document.getElementById('starfield'), sCtx = sCvs.getContext('2d');
+        let stars = []; 
+        function resz() { 
+            sCvs.width = window.innerWidth; sCvs.height = window.innerHeight; 
+            stars = Array(120).fill().map(() => ({x:Math.random()*sCvs.width, y:Math.random()*sCvs.height, s:Math.random()*2, v:Math.random()*0.5+0.2})); 
+        }
+        function drwS() { 
+            sCtx.clearRect(0,0,sCvs.width, sCvs.height); sCtx.fillStyle="#fff"; 
+            stars.forEach(s => { s.y += s.v; if(s.y > sCvs.height) s.y = 0; sCtx.fillRect(s.x, s.y, s.s, s.s); }); 
+            requestAnimationFrame(drwS); 
+        }
+
         function beep(f, d, v=0.08) {
             if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if(audioCtx.state === 'suspended') audioCtx.resume();
             const o = audioCtx.createOscillator(), g = audioCtx.createGain();
             o.connect(g); g.connect(audioCtx.destination);
-            o.frequency.value = f; o.type = 'sine';
-            g.gain.setValueAtTime(v, audioCtx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + d);
+            o.frequency.value = f; g.gain.setValueAtTime(v, audioCtx.currentTime);
             o.start(); o.stop(audioCtx.currentTime + d);
         }
 
         function shake() {
-            cvs.style.transform = 'scale(1.05)';
-            setTimeout(() => cvs.style.transform = 'scale(1)', 150);
+            cvs.style.transform = 'scale(1.05) rotate(1deg)';
+            setTimeout(() => cvs.style.transform = 'scale(1) rotate(0deg)', 150);
         }
 
         function sel(n, c, el) {
@@ -196,6 +192,8 @@
         function start() {
             hero = document.getElementById('nick').value || "Exilado";
             document.getElementById('menu').style.display = 'none';
+            document.getElementById('gameCanvas').style.display = 'block';
+            document.getElementById('ctrl-layer').style.display = 'flex';
             running = true; init();
         }
 
@@ -213,15 +211,13 @@
 
         function mv(d) {
             const op = { UP:'DOWN', DOWN:'UP', LEFT:'RIGHT', RIGHT:'LEFT' };
-            if(d !== op[dir]) { nextDir = d; if(navigator.vibrate) navigator.vibrate(10); }
+            if(d !== op[dir]) nextDir = d;
         }
 
         function skill() {
             if(mana < 40 || !running) return;
             mana -= 40; invul = true; beep(800, 0.3); shake();
-            if(pClass.name === 'Mago' && foods.length > 0) { 
-                snake[0].x = foods[0].x; snake[0].y = foods[0].y; 
-            }
+            if(pClass.name === 'Mago' && foods.length > 0) { snake[0].x = foods[0].x; snake[0].y = foods[0].y; }
             setTimeout(() => invul = false, 3000);
         }
 
@@ -239,9 +235,7 @@
             let ateIdx = foods.findIndex(f => f.x === head.x && f.y === head.y);
             if(ateIdx !== -1) {
                 score += 10; foods.splice(ateIdx, 1); spawn('food'); beep(600, 0.1);
-                if(score % 50 === 0) { 
-                    lvl++; speed = Math.max(50, speed-10); run(); beep(1000, 0.4);
-                }
+                if(score % 50 === 0) { lvl++; speed = Math.max(50, speed-10); run(); beep(1000, 0.4); }
             } else if(head.x === manaOrb.x && head.y === manaOrb.y) {
                 mana = Math.min(100, mana + 45); spawn('mana'); beep(400, 0.2);
             } else {
@@ -257,21 +251,27 @@
             ctx.strokeStyle = "rgba(255,255,255,0.03)";
             for(let i=0; i<400; i+=box) { ctx.strokeRect(i, 0, box, 400); ctx.strokeRect(0, i, 400, box); }
 
+            // Comida (Glow)
             foods.forEach(f => {
                 ctx.fillStyle = "#fff"; ctx.shadowBlur = 15; ctx.shadowColor = "#fff";
                 ctx.beginPath(); ctx.arc(f.x+10, f.y+10, 8, 0, Math.PI*2); ctx.fill();
             });
             
+            // Mana (Glow)
             ctx.fillStyle = "#3b82f6"; ctx.shadowColor = "#3b82f6";
             ctx.beginPath(); ctx.arc(manaOrb.x+10, manaOrb.y+10, 6, 0, Math.PI*2); ctx.fill();
             
             ctx.shadowBlur = 0;
 
+            // Cobra (Rounded + Neon)
             snake.forEach((s, i) => {
                 ctx.fillStyle = invul ? "#fff" : (i === 0 ? "#fff" : pClass.color);
-                ctx.shadowBlur = i === 0 ? 15 : 0; ctx.shadowColor = pClass.color;
-                ctx.beginPath(); ctx.roundRect(s.x+2, s.y+2, box-4, box-4, 6); ctx.fill();
+                ctx.shadowBlur = i === 0 ? 20 : 0; ctx.shadowColor = pClass.color;
+                ctx.beginPath(); 
+                ctx.roundRect(s.x+2, s.y+2, box-4, box-4, 6); 
+                ctx.fill();
             });
+            ctx.shadowBlur = 0;
         }
 
         function updHUD() {
@@ -286,43 +286,14 @@
             else sBtn.classList.remove('skill-ready');
         }
 
-        async function die() {
+        function die() { 
             running = false; clearInterval(loop); beep(100, 0.6, 0.3);
-            cvs.style.filter = "grayscale(1) brightness(0.5)";
-            document.getElementById('death').style.display = 'flex';
-            try {
-                await fetch('/save-ranking', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario:hero, pontos:score}) });
-                loadRank();
-            } catch(e) {}
+            document.getElementById('death').style.display = 'flex'; 
         }
-
         function run() { clearInterval(loop); loop = setInterval(update, speed); }
-        function tgChat() { document.getElementById('chat-ui').classList.toggle('open'); loadChat(); }
-        
-        async function send() {
-            const i = document.getElementById('chat-in'); if(!i.value) return;
-            try { await fetch('/send-chat', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario:hero, texto:i.value}) }); i.value = ""; loadChat(); } catch(e) {}
-        }
-        async function loadChat() {
-            if(!document.getElementById('chat-ui').classList.contains('open')) return;
-            try {
-                const r = await fetch('/get-chat'), d = await r.json();
-                document.getElementById('chat-box').innerHTML = d.map(m => `<div style="margin-bottom:12px;"><b style="color:var(--neon)">${m.usuario}:</b> <span style="opacity:0.8">${m.texto}</span></div>`).join("");
-                const b = document.getElementById('chat-box'); b.scrollTop = b.scrollHeight;
-            } catch(e) {}
-        }
-        async function loadRank() {
-            try {
-                const r = await fetch('/get-ranking'), d = await r.json();
-                document.getElementById('rank-list').innerHTML = d.slice(0,5).map((m,i) => `<div style="display:flex; justify-content:space-between; margin:10px 0; padding:10px; background:rgba(255,255,255,0.02); border-radius:10px;"><span>${i+1}º ${m.usuario}</span><b style="color:var(--neon)">${m.pontos}</b></div>`).join("");
-            } catch(e) {}
-        }
+        function tgChat() { document.getElementById('chat-ui').classList.toggle('open'); }
 
-        const sCvs = document.getElementById('starfield'), sCtx = sCvs.getContext('2d');
-        let stars = []; function resz() { sCvs.width = window.innerWidth; sCvs.height = window.innerHeight; stars = Array(100).fill().map(() => ({x:Math.random()*sCvs.width, y:Math.random()*sCvs.height, s:Math.random()*2})); }
-        function drwS() { sCtx.clearRect(0,0,sCvs.width, sCvs.height); sCtx.fillStyle="#fff"; stars.forEach(s => { s.y+=0.3; if(s.y>sCvs.height) s.y=0; sCtx.fillRect(s.x, s.y, s.s, s.s); }); requestAnimationFrame(drwS); }
         window.onresize = resz; resz(); drwS();
-        setInterval(loadChat, 4000);
     </script>
 </body>
 </html>
