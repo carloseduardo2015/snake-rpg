@@ -36,7 +36,6 @@
             box-shadow: 0 0 25px rgba(0,0,0,0.7);
         }
 
-        /* ANIMAÇÃO DE DANO/MORTE */
         .shake { animation: shakeAnim 0.3s ease-in-out; }
         @keyframes shakeAnim {
             0%, 100% { transform: translate(0,0); }
@@ -46,11 +45,12 @@
             80% { transform: translate(5px, 5px); }
         }
 
-        /* CONTROLES GIGANTES E CENTRALIZADOS */
+        /* CONTROLES */
         .controls { 
             background: var(--panel); height: 230px; display: flex; align-items: center; 
             justify-content: center; border-top: 1px solid rgba(255,255,255,0.1); position: relative;
             padding-bottom: env(safe-area-inset-bottom); flex-shrink: 0;
+            transition: justify-content 0.3s ease;
         }
         .joy { display: grid; grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 12px; }
         .btn-c { 
@@ -70,13 +70,17 @@
         .skill-ring:active { transform: scale(0.92); }
 
         /* MODAIS */
-        .modal { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; padding: 25px; }
-        .class-btn { background: #1e293b; border: 1px solid #334155; color: #fff; padding: 15px; border-radius: 12px; width: 100%; margin: 5px 0; font-weight: bold; text-align: left; }
+        .modal { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; padding: 25px; overflow-y: auto; }
+        .class-btn { background: #1e293b; border: 1px solid #334155; color: #fff; padding: 12px; border-radius: 12px; width: 100%; margin: 4px 0; font-weight: bold; text-align: left; font-size: 0.8rem; }
         .class-btn.active { border-color: var(--neon); background: rgba(34, 197, 94, 0.1); box-shadow: 0 0 10px rgba(34, 197, 94, 0.2); }
 
         #chat-ui { position: fixed; bottom: 0; height: 70%; width: 100%; background: #0f172a; transform: translateY(100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; border-top: 3px solid var(--neon); display: flex; flex-direction: column; }
         #chat-ui.open { transform: translateY(0); }
         #chat-box { flex: 1; overflow-y: auto; padding: 15px; font-size: 0.95rem; line-height: 1.4; }
+
+        /* Estilo para os sliders de ajuste */
+        .config-row { width: 100%; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); }
+        input[type=range] { width: 100%; accent-color: var(--neon); }
     </style>
 </head>
 <body>
@@ -99,13 +103,27 @@
         <canvas id="gameCanvas" width="400" height="400"></canvas>
 
         <div id="menu" class="modal">
-            <h1 style="color:var(--neon); font-family:'Orbitron'; margin: 0; font-size: 1.8rem;">SNAKE RPG</h1>
-            <p style="font-size: 0.6rem; color: #94a3b8; letter-spacing: 4px; margin-bottom: 20px;">AETHER ASCENSION</p>
-            <input type="text" id="nick" placeholder="NOME DO HERÓI" maxlength="10" style="padding:15px; width:100%; background:#000; border:1px solid #334155; color:#fff; border-radius:10px; text-align:center; margin-bottom:15px; font-family: 'Orbitron';">
-            <button class="class-btn active" onclick="sel('Ladino','#22c55e',this)">⚡ LADINO (DASH SOMBRIO)</button>
-            <button class="class-btn" onclick="sel('Guerreiro','#ef4444',this)">🛡️ GUERREIRO (BERSERK)</button>
-            <button class="class-btn" onclick="sel('Mago','#a855f7',this)">🔮 MAGO (TELEPORTE)</button>
-            <button onclick="start()" style="margin-top:15px; width:100%; padding:18px; border:none; border-radius:12px; background:var(--neon); color: #000; font-weight:900; font-family:'Orbitron'; font-size: 1.1rem;">INICIAR JORNADA</button>
+            <h1 style="color:var(--neon); font-family:'Orbitron'; margin: 0; font-size: 1.5rem;">SNAKE RPG</h1>
+            <p style="font-size: 0.5rem; color: #94a3b8; letter-spacing: 4px; margin-bottom: 15px;">AETHER ASCENSION</p>
+            
+            <input type="text" id="nick" placeholder="NOME DO HERÓI" maxlength="10" style="padding:12px; width:100%; background:#000; border:1px solid #334155; color:#fff; border-radius:10px; text-align:center; margin-bottom:10px; font-family: 'Orbitron'; font-size: 0.8rem;">
+            
+            <div style="width: 100%; margin-bottom: 10px;">
+                <button class="class-btn active" onclick="sel('Ladino','#22c55e',this)">⚡ LADINO (DASH)</button>
+                <button class="class-btn" onclick="sel('Guerreiro','#ef4444',this)">🛡️ GUERREIRO (BERSERK)</button>
+                <button class="class-btn" onclick="sel('Mago','#a855f7',this)">🔮 MAGO (TELEPORTE)</button>
+                <button class="class-btn" onclick="sel('Clérigo','#fbbf24',this)">☀️ CLÉRIGO (SANTUÁRIO)</button>
+            </div>
+
+            <div class="config-row">
+                <p style="font-size:0.6rem; color:var(--neon); font-family:'Orbitron'; margin:0 0 8px 0;">AJUSTES DE CONTROLE</p>
+                <label style="font-size:0.55rem; display:block;">TAMANHO: <span id="val-sz">75</span>px</label>
+                <input type="range" id="set-size" min="50" max="110" value="75" oninput="updateControlsPreview()">
+                <label style="font-size:0.55rem; display:block; margin-top:8px;">POSIÇÃO DO JOYSTICK</label>
+                <input type="range" id="set-pos" min="0" max="100" value="50" oninput="updateControlsPreview()">
+            </div>
+
+            <button onclick="start()" style="width:100%; padding:15px; border:none; border-radius:12px; background:var(--neon); color: #000; font-weight:900; font-family:'Orbitron'; font-size: 1rem;">INICIAR JORNADA</button>
         </div>
 
         <div id="death" class="modal" style="display:none">
@@ -151,7 +169,31 @@
             else if (document.exitFullscreen) document.exitFullscreen();
         }
 
-        // GERADOR DE SOM (Web Audio API)
+        // AJUSTES DE CONTROLE DINÂMICO
+        function updateControlsPreview() {
+            const size = document.getElementById('set-size').value;
+            const posX = document.getElementById('set-pos').value;
+            document.getElementById('val-sz').innerText = size;
+
+            const joy = document.querySelector('.joy');
+            joy.style.gridTemplateColumns = `repeat(3, ${size}px)`;
+            joy.style.gridTemplateRows = `repeat(2, ${size}px)`;
+
+            document.querySelectorAll('.btn-c').forEach(btn => {
+                btn.style.width = `${size}px`;
+                btn.style.height = `${size}px`;
+                btn.style.fontSize = `${size/2.5}px`;
+            });
+
+            const ctrlArea = document.querySelector('.controls');
+            ctrlArea.style.justifyContent = posX < 33 ? 'flex-start' : (posX > 66 ? 'flex-end' : 'center');
+            ctrlArea.style.paddingLeft = posX < 33 ? '20px' : '0';
+            ctrlArea.style.paddingRight = posX > 66 ? '20px' : '0';
+
+            localStorage.setItem('joySize', size);
+            localStorage.setItem('joyPos', posX);
+        }
+
         function beep(f, d, v=0.08) {
             try {
                 if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -207,6 +249,8 @@
             } else if(pClass.name === 'Ladino') {
                 invul = true; let oldSpeed = speed; speed = 50; run();
                 setTimeout(() => { invul = false; speed = oldSpeed; run(); }, 3000);
+            } else if(pClass.name === 'Clérigo') {
+                invul = true; setTimeout(() => { invul = false; }, 5000);
             }
         }
 
@@ -221,9 +265,10 @@
             const hitSelf = snake.some(s => s.x === head.x && s.y === head.y);
 
             if (hitWall || hitSelf) {
-                if (invul) { // Atravesar paredes se estiver usando Skill
+                if (invul) { 
                     if(head.x < 0) head.x = 380; else if(head.x >= 400) head.x = 0;
                     if(head.y < 0) head.y = 380; else if(head.y >= 400) head.y = 0;
+                    // Se for Clérigo e hitSelf, apenas ignora
                 } else { die(); return; }
             }
 
@@ -239,31 +284,21 @@
         function draw() {
             ctx.clearRect(0, 0, 400, 400);
             const p = Math.sin(Date.now() / 200) * 5;
-            
-            // Grade de fundo sutil
             ctx.strokeStyle = "rgba(255,255,255,0.03)";
             for(let i=0; i<=400; i+=box) { 
                 ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,400); ctx.stroke(); 
                 ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(400,i); ctx.stroke(); 
             }
-
-            // Maçã Pulsante (Visual Original)
             ctx.fillStyle = "#fff"; ctx.shadowBlur = 15 + p; ctx.shadowColor = "#fff";
             ctx.beginPath(); ctx.arc(food.x+10, food.y+10, 6 + p/4, 0, Math.PI*2); ctx.fill();
-            
-            // Orbe de Mana
             ctx.fillStyle = "#3b82f6"; ctx.shadowColor = "#3b82f6";
             ctx.beginPath(); ctx.arc(manaOrb.x+10, manaOrb.y+10, 5 + p/5, 0, Math.PI*2); ctx.fill();
-            
             ctx.shadowBlur = 0;
-            // Cobra
             snake.forEach((s, i) => {
                 if(invul) { 
-                    ctx.fillStyle = i === 0 ? "#fff" : "rgba(255,255,255,0.3)"; 
-                    ctx.shadowBlur = 10; ctx.shadowColor = "#fff"; 
-                } else { 
-                    ctx.fillStyle = i === 0 ? "#fff" : pClass.color; 
-                }
+                    ctx.fillStyle = i === 0 ? "#fff" : (pClass.name === 'Clérigo' ? "rgba(251, 191, 36, 0.5)" : "rgba(255,255,255,0.3)"); 
+                    ctx.shadowBlur = 15; ctx.shadowColor = pClass.color; 
+                } else { ctx.fillStyle = i === 0 ? "#fff" : pClass.color; }
                 ctx.beginPath(); ctx.roundRect(s.x+1, s.y+1, box-2, box-2, 6); ctx.fill();
                 ctx.shadowBlur = 0;
             });
@@ -279,82 +314,51 @@
         async function die() {
             running = false; clearInterval(loop); 
             cvs.classList.add('shake'); beep(120, 0.5, 0.2);
-            
             const best = localStorage.getItem('rpg_pb') || 0;
             if(score > best) localStorage.setItem('rpg_pb', score);
-            
             document.getElementById('pb').innerText = `Recorde Pessoal: ${Math.max(score, best)} XP`;
             document.getElementById('death').style.display = 'flex';
-            
             try {
-                await fetch('/save-ranking', { 
-                    method:'POST', 
-                    headers:{'Content-Type':'application/json'}, 
-                    body:JSON.stringify({usuario:hero, pontos:score}) 
-                });
+                await fetch('/save-ranking', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario:hero, pontos:score}) });
                 loadRank();
             } catch(e){}
         }
 
         function run() { clearInterval(loop); loop = setInterval(update, speed); }
-        
-        function tgChat() { 
-            document.getElementById('chat-ui').classList.toggle('open'); 
-            if(document.getElementById('chat-ui').classList.contains('open')) loadChat(); 
-        }
-        
+        function tgChat() { document.getElementById('chat-ui').classList.toggle('open'); if(document.getElementById('chat-ui').classList.contains('open')) loadChat(); }
         async function send() {
             const i = document.getElementById('chat-in'); if(!i.value) return;
             try {
-                await fetch('/send-chat', { 
-                    method:'POST', 
-                    headers:{'Content-Type':'application/json'}, 
-                    body:JSON.stringify({usuario:hero, texto:i.value}) 
-                });
+                await fetch('/send-chat', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario:hero, texto:i.value}) });
                 i.value = ""; loadChat();
             } catch(e){}
         }
-
         async function loadChat() {
             try {
                 const r = await fetch('/get-chat'), d = await r.json();
-                document.getElementById('chat-box').innerHTML = d.map(m => 
-                    `<div style="margin-bottom:6px;"><b style="color:var(--neon)">${m.usuario}:</b> ${m.texto}</div>`
-                ).join("");
+                document.getElementById('chat-box').innerHTML = d.map(m => `<div style="margin-bottom:6px;"><b style="color:var(--neon)">${m.usuario}:</b> ${m.texto}</div>`).join("");
                 document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
             } catch(e){}
         }
-
         async function loadRank() {
             try {
                 const r = await fetch('/get-ranking'), d = await r.json();
-                document.getElementById('rank-list').innerHTML = d.slice(0,5).map((m,i) => 
-                    `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
-                        <span>${i+1}º ${m.usuario}</span>
-                        <b style="color:var(--neon)">${m.pontos} XP</b>
-                    </div>`
-                ).join("");
+                document.getElementById('rank-list').innerHTML = d.slice(0,5).map((m,i) => `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.05);"><span>${i+1}º ${m.usuario}</span><b style="color:var(--neon)">${m.pontos} XP</b></div>`).join("");
             } catch(e){}
         }
 
-        // FUNDO DE ESTRELAS
         const sCvs = document.getElementById('starfield'), sCtx = sCvs.getContext('2d');
         let stars = []; 
-        function resz() { 
-            sCvs.width = window.innerWidth; sCvs.height = window.innerHeight; 
-            stars = Array(100).fill().map(() => ({x:Math.random()*sCvs.width, y:Math.random()*sCvs.height, s:Math.random()*2, a:Math.random()})); 
-        }
-        function drwS() { 
-            sCtx.clearRect(0,0,sCvs.width, sCvs.height); sCtx.fillStyle="#fff"; 
-            stars.forEach(s => { 
-                s.y += 0.3; if(s.y > sCvs.height) s.y = 0; 
-                sCtx.globalAlpha = s.a; sCtx.fillRect(s.x, s.y, s.s, s.s); 
-            }); 
-            requestAnimationFrame(drwS); 
-        }
+        function resz() { sCvs.width = window.innerWidth; sCvs.height = window.innerHeight; stars = Array(100).fill().map(() => ({x:Math.random()*sCvs.width, y:Math.random()*sCvs.height, s:Math.random()*2, a:Math.random()})); }
+        function drwS() { sCtx.clearRect(0,0,sCvs.width, sCvs.height); sCtx.fillStyle="#fff"; stars.forEach(s => { s.y += 0.3; if(s.y > sCvs.height) s.y = 0; sCtx.globalAlpha = s.a; sCtx.fillRect(s.x, s.y, s.s, s.s); }); requestAnimationFrame(drwS); }
         window.onresize = resz; resz(); drwS();
 
-        // Updates automáticos
+        window.addEventListener('load', () => {
+            const sS = localStorage.getItem('joySize');
+            const sP = localStorage.getItem('joyPos');
+            if(sS) { document.getElementById('set-size').value = sS; document.getElementById('set-pos').value = sP; updateControlsPreview(); }
+        });
+
         loadChat(); loadRank();
         setInterval(() => { if(document.getElementById('chat-ui').classList.contains('open')) loadChat(); }, 3000);
     </script>
