@@ -8,9 +8,16 @@
     <style>
         :root { 
             --neon: #22c55e; --mana: #3b82f6; --danger: #ef4444; --gold: #f59e0b;
-            --bg: #020617; --panel: rgba(15, 23, 42, 0.98);
+            --bg: #020617; --panel: rgba(15, 23, 42, 0.95);
         }
         * { touch-action: none; user-select: none; box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        
+        @keyframes meshGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         body { 
             margin: 0; background: var(--bg); color: #fff; overflow: hidden;
             font-family: 'Inter', sans-serif; height: 100svh; display: flex; flex-direction: column;
@@ -18,69 +25,109 @@
 
         #starfield { position: fixed; inset: 0; z-index: -1; }
 
-        /* HUD */
-        .hud { padding: 10px 20px; background: var(--panel); border-bottom: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); z-index: 5; }
-        .stats-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-        .bar-outer { height: 6px; background: #000; border-radius: 3px; overflow: hidden; margin-bottom: 4px; border: 1px solid rgba(255,255,255,0.05); }
+        /* HUD INTEGRADA */
+        .hud { 
+            padding: 10px 15px; background: var(--panel); 
+            border-bottom: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); z-index: 5;
+            display: flex; flex-direction: column; gap: 5px;
+        }
+        .hud-top { display: flex; justify-content: space-between; align-items: center; }
+        .hud-bars { flex: 1; margin-right: 15px; }
+        
+        .bar-outer { height: 8px; background: #000; border-radius: 4px; overflow: hidden; margin-bottom: 4px; border: 1px solid rgba(255,255,255,0.05); }
         .bar-inner { height: 100%; width: 0%; transition: 0.3s; }
 
-        /* AREA DO JOGO */
+        .chat-trigger { 
+            width: 45px; height: 45px; background: rgba(255,255,255,0.05); 
+            border: 1px solid var(--neon); border-radius: 10px; color: #fff; font-size: 1.2rem;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
+
+        /* ÁREA DO JOGO */
         #viewport { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
         canvas#gameCanvas { 
-            width: 85vw; height: 85vw; max-width: 380px; max-height: 380px;
-            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px; background: rgba(0,0,0,0.4);
+            width: 88vw; height: 88vw; max-width: 380px; max-height: 380px;
+            border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 15px; background: rgba(0,0,0,0.6);
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
+
         .shake { animation: shakeAnim 0.3s; }
         @keyframes shakeAnim {
             0%, 100% { transform: translate(0,0); }
-            25% { transform: translate(5px, 5px); }
-            50% { transform: translate(-5px, -5px); }
-            75% { transform: translate(5px, -5px); }
+            25% { transform: translate(6px, 6px); }
+            50% { transform: translate(-6px, -6px); }
+            75% { transform: translate(6px, -6px); }
         }
 
-        /* MENU DE CLASSES (CARDS) */
-        .modal { position: absolute; inset: 0; background: var(--bg); display: flex; flex-direction: column; z-index: 100; padding: 25px; }
+        /* MENU INICIAL ANIMADO */
+        .modal { 
+            position: absolute; inset: 0; 
+            background: linear-gradient(-45deg, #020617, #0f172a, #1e1b4b, #020617);
+            background-size: 400% 400%; animation: meshGradient 12s ease infinite;
+            display: flex; flex-direction: column; z-index: 100; padding: 30px; align-items: center; justify-content: center;
+        }
         .class-card { 
-            background: #111827; border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; 
+            width: 100%; max-width: 300px; background: rgba(255,255,255,0.03); 
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; 
             padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+            backdrop-filter: blur(8px); transition: 0.2s;
         }
-        .class-card.active { border: 2px solid var(--neon); box-shadow: 0 0 15px rgba(34, 197, 94, 0.2); }
+        .class-card.active { border: 2px solid var(--neon); background: rgba(34, 197, 94, 0.15); box-shadow: 0 0 20px rgba(34, 197, 94, 0.2); }
         .class-info b { display: block; font-family: 'Orbitron'; color: var(--neon); font-size: 0.9rem; }
-        .class-info span { font-size: 0.7rem; opacity: 0.6; }
+        .class-info span { font-size: 0.7rem; opacity: 0.7; }
 
-        /* CONTROLES */
-        .controls { height: 200px; background: var(--panel); display: flex; align-items: center; justify-content: center; position: relative; border-top: 1px solid rgba(255,255,255,0.1); }
-        .joy { display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(2, 60px); gap: 8px; }
-        .btn-c { width: 60px; height: 60px; background: #1e293b; border: none; border-radius: 12px; color: #fff; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 0 #000; }
+        /* CONTROLES CENTRALIZADOS */
+        .controls { 
+            height: 220px; background: var(--panel); display: flex; align-items: center; 
+            justify-content: center; position: relative; border-top: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .joy { display: grid; grid-template-columns: repeat(3, 65px); grid-template-rows: repeat(2, 65px); gap: 10px; }
+        .btn-c { 
+            width: 65px; height: 65px; background: #1e293b; border: 1px solid #334155; border-radius: 15px; 
+            color: #fff; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 4px 0 #000; transition: 0.1s;
+        }
         .btn-c:active { transform: translateY(3px); box-shadow: none; background: var(--neon); color: #000; }
 
-        .skill-ring { position: absolute; right: 20px; width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--mana); display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Orbitron'; font-size: 0.6rem; font-weight: 900; background: rgba(59, 130, 246, 0.1); }
-        .chat-trigger { position: absolute; left: 20px; width: 50px; height: 50px; background: #1e293b; border-radius: 10px; border: 1px solid var(--neon); color: #fff; font-size: 1.2rem; }
+        .skill-ring { 
+            position: absolute; right: 20px; width: 75px; height: 75px; border-radius: 50%; 
+            border: 3px solid var(--mana); display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; font-family: 'Orbitron'; font-size: 0.6rem; font-weight: 900; 
+            background: rgba(59, 130, 246, 0.1); box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+        }
 
         /* CHAT */
-        #chat-ui { position: fixed; bottom: 0; height: 60%; width: 100%; background: #0f172a; transform: translateY(100%); transition: 0.4s; z-index: 200; border-top: 3px solid var(--neon); display: flex; flex-direction: column; }
+        #chat-ui { position: fixed; bottom: 0; height: 70%; width: 100%; background: #0f172a; transform: translateY(100%); transition: 0.4s; z-index: 200; border-top: 3px solid var(--neon); display: flex; flex-direction: column; }
         #chat-ui.open { transform: translateY(0); }
-        .rank-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; }
+        .rank-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; }
     </style>
 </head>
 <body>
     <canvas id="starfield"></canvas>
 
     <div class="hud">
-        <div class="stats-row">
-            <span id="h-class" style="color:var(--neon); font-family:'Orbitron'; font-size:0.7rem;">SNAKE RPG</span>
-            <span style="font-size: 0.8rem; font-weight: 800;">LVL <span id="lvl">1</span> | <span id="score">0</span> XP</span>
+        <div class="hud-top">
+            <div class="hud-bars">
+                <div style="display:flex; justify-content:space-between; font-size:0.65rem; font-family:'Orbitron'; margin-bottom:4px;">
+                    <span id="h-class" style="color:var(--neon)">LADINO</span>
+                    <span>LVL <span id="lvl">1</span> | <span id="score">0</span> XP</span>
+                </div>
+                <div class="bar-outer"><div id="xp-bar" class="bar-inner" style="background:var(--neon)"></div></div>
+                <div class="bar-outer"><div id="mana-bar" class="bar-inner" style="background:var(--mana); width:100%"></div></div>
+            </div>
+            <button class="chat-trigger" onclick="tgChat()">💬</button>
         </div>
-        <div class="bar-outer"><div id="xp-bar" class="bar-inner" style="background:var(--neon)"></div></div>
-        <div class="bar-outer"><div id="mana-bar" class="bar-inner" style="background:var(--mana); width:100%"></div></div>
     </div>
 
     <div id="viewport">
         <canvas id="gameCanvas" width="400" height="400"></canvas>
 
         <div id="menu" class="modal">
-            <h1 style="color:var(--neon); font-family:'Orbitron'; font-size: 1.4rem; text-align: center;">ASCENSION</h1>
-            <input type="text" id="nick" placeholder="NOME DO HERÓI" maxlength="10" style="padding:15px; width:100%; background:#000; border:1px solid #334155; color:#fff; border-radius:10px; text-align:center; margin-bottom:15px; font-family:'Orbitron';">
+            <h1 style="color:var(--neon); font-family:'Orbitron'; font-size: 1.8rem; margin-bottom: 5px; text-shadow: 0 0 15px var(--neon);">ASCENSION</h1>
+            <p style="font-size: 0.7rem; opacity: 0.5; margin-bottom: 20px;">SNAKE RPG ULTIMATE EDITION</p>
+            
+            <input type="text" id="nick" placeholder="NOME DO HERÓI" maxlength="10" style="padding:15px; width:100%; max-width:300px; background:rgba(0,0,0,0.6); border:1px solid var(--neon); color:#fff; border-radius:12px; text-align:center; margin-bottom:20px; font-family:'Orbitron';">
             
             <div class="class-card active" onclick="sel('Ladino','#22c55e',this)">
                 <div class="class-info"><b>LADINO</b><span>⚡ INVULNERABILIDADE (3s)</span></div><div style="font-size:1.5rem">⚡</div>
@@ -92,22 +139,21 @@
                 <div class="class-info"><b>MAGO</b><span>🔮 BLINK (TELEPORTE)</span></div><div style="font-size:1.5rem">🔮</div>
             </div>
             
-            <button onclick="start()" style="margin-top:auto; width:100%; padding:20px; border:none; border-radius:12px; background:var(--neon); color:#000; font-weight:900; font-family:'Orbitron';">INICIAR JORNADA</button>
+            <button onclick="start()" style="margin-top:20px; width:100%; max-width:300px; padding:20px; border:none; border-radius:15px; background:var(--neon); color:#000; font-weight:900; font-family:'Orbitron'; cursor:pointer; box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);">INICIAR JORNADA</button>
         </div>
 
-        <div id="death" class="modal" style="display:none">
+        <div id="death" class="modal" style="display:none; background: rgba(2,6,23,0.95);">
             <h1 style="color:var(--danger); font-family:'Orbitron';">DERROTADO!</h1>
-            <p id="pb" style="font-size: 0.8rem; color: var(--gold); font-weight: bold;"></p>
-            <div style="width:100%; max-width:280px; margin:15px 0; background:#0f172a; padding:15px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+            <p id="pb" style="font-size: 0.9rem; color: var(--gold); font-weight: bold;"></p>
+            <div style="width:100%; max-width:280px; margin:15px 0; background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
                 <b style="font-size:0.7rem; color:#94a3b8;">RANKING GLOBAL</b>
                 <div id="rank-list" style="margin-top:10px;"></div>
             </div>
-            <button onclick="location.reload()" style="padding:18px 40px; border-radius:12px; border:none; background:var(--mana); color:#fff; font-weight:bold; font-family:'Orbitron'; width:100%;">REENCARNAR</button>
+            <button onclick="location.reload()" style="padding:18px 40px; border-radius:12px; border:none; background:var(--mana); color:#fff; font-weight:bold; font-family:'Orbitron'; width:100%; max-width:280px;">REENCARNAR</button>
         </div>
     </div>
 
     <div class="controls">
-        <button class="chat-trigger" onclick="tgChat()">💬</button>
         <div class="joy">
             <button class="btn-c" style="grid-column: 2; grid-row: 1;" onpointerdown="mv('UP')">▲</button>
             <button class="btn-c" style="grid-column: 1; grid-row: 2;" onpointerdown="mv('LEFT')">◀</button>
@@ -120,7 +166,7 @@
     <div id="chat-ui">
         <div style="padding:15px; background:#1e293b; display:flex; justify-content:space-between; align-items:center;">
             <b style="font-size:0.8rem;">TAVERNA GLOBAL</b> 
-            <span onclick="tgChat()" style="cursor:pointer">✖</span>
+            <span onclick="tgChat()" style="cursor:pointer; padding:5px;">✖</span>
         </div>
         <div id="chat-box" style="flex:1; overflow-y:auto; padding:15px; font-size:0.9rem;"></div>
         <div style="padding:12px; display:flex; gap:8px; background:#020617;">
@@ -131,17 +177,19 @@
 
     <script>
         const cvs = document.getElementById("gameCanvas"), ctx = cvs.getContext("2d"), box = 20;
-        let snake, food, manaOrb, dir, nextDir, score, lvl, mana, speed, loop, running = false, pClass = { name:'Ladino', color:'#22c55e' }, hero = "", invul = false, audioCtx;
+        let snake, foods = [], manaOrbs = [], dir, nextDir, score, lvl, mana, speed, loop, running = false, pClass = { name:'Ladino', color:'#22c55e' }, hero = "", invul = false, audioCtx;
 
         function beep(f, d, v=0.08) {
-            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if(audioCtx.state === 'suspended') audioCtx.resume();
-            const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-            o.connect(g); g.connect(audioCtx.destination);
-            o.frequency.value = f; o.type = 'square';
-            g.gain.setValueAtTime(v, audioCtx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + d);
-            o.start(); o.stop(audioCtx.currentTime + d);
+            try {
+                if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if(audioCtx.state === 'suspended') audioCtx.resume();
+                const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+                o.connect(g); g.connect(audioCtx.destination);
+                o.frequency.value = f; o.type = 'square';
+                g.gain.setValueAtTime(v, audioCtx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + d);
+                o.start(); o.stop(audioCtx.currentTime + d);
+            } catch(e){}
         }
 
         function sel(n, c, el) {
@@ -161,12 +209,15 @@
         function init() {
             snake = [{x:10*box, y:10*box}]; dir = nextDir = "RIGHT";
             score = 0; lvl = 1; mana = 100; speed = 145;
-            spawn('food'); spawn('mana'); run();
+            foods = []; manaOrbs = [];
+            for(let i=0; i<3; i++) spawn('food');
+            for(let i=0; i<2; i++) spawn('mana');
+            run();
         }
 
         function spawn(t) {
             const p = { x: Math.floor(Math.random()*19)*box, y: Math.floor(Math.random()*19)*box };
-            if(t==='food') food = p; else manaOrb = p;
+            if(t==='food') foods.push(p); else manaOrbs.push(p);
         }
 
         function mv(d) {
@@ -177,11 +228,9 @@
         function skill() {
             if(mana < 40 || !running) return;
             mana -= 40; invul = true; beep(800, 0.2);
-            if(pClass.name === 'Mago') {
-                // Efeito visual de Blink
-                ctx.fillStyle = "white";
-                ctx.fillRect(0,0,400,400);
-                snake[0].x = food.x; snake[0].y = food.y;
+            if(pClass.name === 'Mago' && foods.length > 0) {
+                ctx.fillStyle = "white"; ctx.fillRect(0,0,400,400);
+                snake[0].x = foods[0].x; snake[0].y = foods[0].y;
             }
             setTimeout(() => invul = false, 3000);
         }
@@ -193,17 +242,27 @@
             if(dir === 'UP') head.y -= box; if(dir === 'DOWN') head.y += box;
             if(dir === 'LEFT') head.x -= box; if(dir === 'RIGHT') head.x += box;
 
-            // Colisão
             if(head.x < 0 || head.x >= 400 || head.y < 0 || head.y >= 400 || (!invul && snake.some(s => s.x === head.x && s.y === head.y))) {
                 die(); return;
             }
 
-            if(head.x === food.x && head.y === food.y) {
-                score += 10; spawn('food'); beep(600, 0.08);
-                if(score % 50 === 0) { lvl++; speed = Math.max(50, speed-12); run(); }
-            } else if(head.x === manaOrb.x && head.y === manaOrb.y) {
-                mana = Math.min(100, mana + 45); spawn('mana'); beep(450, 0.1);
-            } else {
+            let ate = false;
+            foods.forEach((f, i) => {
+                if(head.x === f.x && head.y === f.y) {
+                    score += 10; foods.splice(i, 1); spawn('food'); ate = true;
+                    beep(600, 0.08);
+                    if(score % 50 === 0) { lvl++; speed = Math.max(50, speed-12); run(); }
+                }
+            });
+
+            manaOrbs.forEach((m, i) => {
+                if(head.x === m.x && head.y === m.y) {
+                    mana = Math.min(100, mana + 45); manaOrbs.splice(i, 1); spawn('mana'); 
+                    beep(450, 0.1);
+                }
+            });
+
+            if(!ate) {
                 snake.pop(); mana = Math.min(100, mana + 0.15);
             }
             snake.unshift(head); draw(); updHUD();
@@ -211,20 +270,34 @@
 
         function draw() {
             ctx.clearRect(0, 0, 400, 400);
-            const p = Math.sin(Date.now() / 200) * 5;
-            // Grade
+            const pulse = Math.sin(Date.now() / 200) * 4;
+            
+            // Grid de fundo
             ctx.strokeStyle = "rgba(255,255,255,0.03)";
-            for(let i=0; i<400; i+=box) { ctx.strokeRect(i,0,box,400); ctx.strokeRect(0,i,400,box); }
-            // Comida e Mana
-            ctx.fillStyle = "#fff"; ctx.shadowBlur = 10+p; ctx.shadowColor = "#fff";
-            ctx.beginPath(); ctx.arc(food.x+10, food.y+10, 6, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = "#3b82f6"; ctx.shadowColor = "#3b82f6";
-            ctx.beginPath(); ctx.arc(manaOrb.x+10, manaOrb.y+10, 5, 0, Math.PI*2); ctx.fill();
-            // Cobra
+            for(let i=0; i<400; i+=box) { 
+                ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,400); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(400,i); ctx.stroke();
+            }
+
+            foods.forEach(f => {
+                ctx.fillStyle = "#fff"; ctx.shadowBlur = 12+pulse; ctx.shadowColor = "#fff";
+                ctx.beginPath(); ctx.arc(f.x+10, f.y+10, 6 + pulse/2, 0, Math.PI*2); ctx.fill();
+            });
+
+            manaOrbs.forEach(m => {
+                ctx.fillStyle = "#3b82f6"; ctx.shadowColor = "#3b82f6"; ctx.shadowBlur = 10;
+                ctx.beginPath(); ctx.arc(m.x+10, m.y+10, 5, 0, Math.PI*2); ctx.fill();
+            });
+
             ctx.shadowBlur = 0;
             snake.forEach((s, i) => {
                 ctx.fillStyle = invul ? "#fff" : (i === 0 ? "#fff" : pClass.color);
                 ctx.beginPath(); ctx.roundRect(s.x+1, s.y+1, box-2, box-2, 5); ctx.fill();
+                // Olhos no primeiro bloco
+                if(i === 0) {
+                    ctx.fillStyle = "#000";
+                    ctx.fillRect(s.x+4, s.y+4, 3, 3); ctx.fillRect(s.x+13, s.y+4, 3, 3);
+                }
             });
         }
 
@@ -236,45 +309,49 @@
             document.getElementById('h-class').innerText = pClass.name.toUpperCase();
         }
 
-        async function die() {
+        function die() {
             running = false; clearInterval(loop); 
             cvs.classList.add('shake'); beep(100, 0.5);
+            setTimeout(() => cvs.classList.remove('shake'), 400);
             const best = localStorage.getItem('rpg_pb') || 0;
             if(score > best) localStorage.setItem('rpg_pb', score);
-            document.getElementById('pb').innerText = `Recorde: ${Math.max(score, best)} XP`;
+            document.getElementById('pb').innerText = `Recorde Pessoal: ${Math.max(score, best)} XP`;
             document.getElementById('death').style.display = 'flex';
-            try {
-                await fetch('/save-ranking', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario:hero, pontos:score}) });
-                loadRank();
-            } catch(e) {}
+            loadRank();
         }
 
         function run() { clearInterval(loop); loop = setInterval(update, speed); }
         function tgChat() { document.getElementById('chat-ui').classList.toggle('open'); loadChat(); }
-        async function send() {
+        
+        function send() {
             const i = document.getElementById('chat-in'); if(!i.value) return;
-            await fetch('/send-chat', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario:hero, texto:i.value}) });
-            i.value = ""; loadChat();
+            i.value = ""; 
         }
 
-        async function loadRank() {
-            try {
-                const r = await fetch('/get-ranking'), d = await r.json();
-                document.getElementById('rank-list').innerHTML = d.slice(0,5).map((m,i) => `<div class="rank-item"><span>${i+1}º ${m.usuario}</span><span style="color:var(--neon)">${m.pontos} XP</span></div>`).join("");
-            } catch(e) {}
+        function loadRank() {
+            document.getElementById('rank-list').innerHTML = `<div class="rank-item"><span>1º ${hero}</span><span style="color:var(--neon)">${score} XP</span></div>`;
         }
 
-        async function loadChat() {
-            try {
-                const r = await fetch('/get-chat'), d = await r.json();
-                document.getElementById('chat-box').innerHTML = d.map(m => `<div><b style="color:var(--neon)">${m.usuario}:</b> ${m.texto}</div>`).join("");
-            } catch(e) {}
+        function loadChat() {
+            document.getElementById('chat-box').innerHTML = `<div><b style="color:var(--neon)">Sistema:</b> Bem-vindo, ${hero}! Suba de nível para liberar o chat global.</div>`;
         }
 
-        // Estrelas
+        // Estrelas de fundo
         const sCvs = document.getElementById('starfield'), sCtx = sCvs.getContext('2d');
-        let stars = []; function resz() { sCvs.width = window.innerWidth; sCvs.height = window.innerHeight; stars = Array(80).fill().map(() => ({x:Math.random()*sCvs.width, y:Math.random()*sCvs.height, s:Math.random()*2})); }
-        function drwS() { sCtx.clearRect(0,0,sCvs.width, sCvs.height); sCtx.fillStyle="#fff"; stars.forEach(s => { s.y+=0.2; if(s.y>sCvs.height) s.y=0; sCtx.fillRect(s.x, s.y, s.s, s.s); }); requestAnimationFrame(drwS); }
+        let stars = []; 
+        function resz() { 
+            sCvs.width = window.innerWidth; sCvs.height = window.innerHeight; 
+            stars = Array(120).fill().map(() => ({x:Math.random()*sCvs.width, y:Math.random()*sCvs.height, s:Math.random()*2, o:Math.random()})); 
+        }
+        function drwS() { 
+            sCtx.clearRect(0,0,sCvs.width, sCvs.height); 
+            stars.forEach(s => { 
+                s.y += 0.15; if(s.y > sCvs.height) s.y = 0; 
+                sCtx.fillStyle = `rgba(255,255,255,${s.o * Math.abs(Math.sin(Date.now()/1000))})`; 
+                sCtx.fillRect(s.x, s.y, s.s, s.s); 
+            }); 
+            requestAnimationFrame(drwS); 
+        }
         window.onresize = resz; resz(); drwS();
     </script>
 </body>
