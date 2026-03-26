@@ -18,74 +18,66 @@
 
         #starfield { position: fixed; inset: 0; z-index: -1; }
 
-        /* HUD */
-        .hud { padding: 10px 20px; background: var(--panel); border-bottom: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); z-index: 5; }
-        .stats-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        /* HUD - CHAT NO TOPO */
+        .hud { padding: 10px 20px; background: var(--panel); border-bottom: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); z-index: 50; }
+        .stats-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        
+        .chat-btn { 
+            background: rgba(34, 197, 94, 0.1); border: 1px solid var(--neon); 
+            color: var(--neon); padding: 8px 16px; border-radius: 20px; 
+            font-size: 0.7rem; font-weight: 900; font-family: 'Orbitron'; cursor: pointer;
+        }
+
         .bar-outer { height: 6px; background: #000; border-radius: 3px; overflow: hidden; margin-bottom: 4px; border: 1px solid rgba(255,255,255,0.05); }
         .bar-inner { height: 100%; width: 0%; transition: 0.3s; box-shadow: 0 0 8px currentColor; }
 
-        /* AREA DO JOGO */
+        /* JOGO */
         #viewport { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
         canvas#gameCanvas { 
-            width: 82vw; height: 82vw; max-width: 380px; max-height: 380px;
+            width: 85vw; height: 85vw; max-width: 380px; max-height: 380px;
             border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px; background: rgba(0,0,0,0.4);
-            transition: transform 0.1s;
-        }
-        .shake { animation: shakeAnim 0.3s; }
-        @keyframes shakeAnim {
-            0%, 100% { transform: translate(0, 0); }
-            25% { transform: translate(-4px, 4px); }
-            50% { transform: translate(4px, -4px); }
-            75% { transform: translate(-4px, -4px); }
         }
 
-        /* CONTROLES CENTRALIZADOS */
+        /* CONTROLES - JOYSTICK AUMENTADO */
         .controls { 
-            background: var(--panel); 
-            height: 190px; 
+            background: linear-gradient(to top, #020617, #0a0f1e); 
+            height: 250px; /* Aumentado para o joystick caber melhor */
             display: flex; align-items: center; justify-content: center; 
-            border-top: 1px solid rgba(255,255,255,0.1); position: relative;
-            padding-bottom: env(safe-area-inset-bottom);
+            position: relative; padding-bottom: env(safe-area-inset-bottom);
         }
 
         .joy { 
             display: grid; 
-            grid-template-columns: repeat(3, 60px); 
-            grid-template-rows: repeat(2, 60px); 
-            gap: 10px; 
-            margin: 0 auto; /* Garante centralização absoluta no flex */
+            grid-template-columns: repeat(3, 80px); /* Botões aumentados para 80px */
+            grid-template-rows: repeat(2, 80px); 
+            gap: 12px; margin: 0 auto; 
         }
         .btn-c { 
-            width: 60px; height: 60px; 
-            background: #1e293b; border: 2px solid #334155; border-radius: 50%; /* Joystick Circular */
-            color: #fff; font-size: 1.2rem; 
+            width: 80px; height: 80px; background: #1e293b; border: 2px solid #334155; 
+            border-radius: 50%; color: #fff; font-size: 1.8rem; /* Setas maiores */
             display: flex; align-items: center; justify-content: center; 
-            box-shadow: 0 4px 0 #0f172a; 
+            box-shadow: 0 6px 0 #0f172a; 
         }
-        .btn-c:active { background: var(--neon); color: #000; transform: translateY(3px); box-shadow: none; }
+        .btn-c:active { background: var(--neon); color: #000; transform: translateY(4px); box-shadow: none; }
 
-        /* SKILL E CHAT NAS LATERAIS */
-        .skill-ring { 
-            position: absolute; right: 20px;
-            width: 75px; height: 75px; border-radius: 50%; border: 3px solid var(--mana); 
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, #020617 100%);
-            color: #fff; font-family: 'Orbitron'; font-weight: 900; font-size: 0.6rem; 
+        .skill-btn { 
+            position: absolute; right: 15px; width: 85px; height: 85px; border-radius: 50%; 
+            border: 3px solid var(--mana); background: radial-gradient(circle, rgba(59, 130, 246, 0.2), #020617);
+            color: #fff; font-family: 'Orbitron'; font-weight: 900; font-size: 0.7rem; 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
         }
 
-        .chat-trigger { 
-            position: absolute; left: 20px; 
-            background: rgba(30, 41, 59, 0.5); border: 1px solid var(--neon); color: #fff; 
-            width: 50px; height: 50px; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
-        }
-
-        /* MODAIS */
-        .modal { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; padding: 25px; text-align: center; }
-        .class-btn { background: #1e293b; border: 1px solid #334155; color: #fff; padding: 14px; border-radius: 10px; width: 100%; margin: 4px 0; font-size: 0.8rem; font-weight: bold; }
+        /* MODAIS E CHAT */
+        .modal { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; padding: 25px; }
+        .class-btn { background: #1e293b; border: 1px solid #334155; color: #fff; padding: 16px; border-radius: 12px; width: 100%; margin: 6px 0; font-weight: bold; }
         .class-btn.active { border-color: var(--neon); background: rgba(34, 197, 94, 0.1); }
 
-        #chat-ui { position: fixed; bottom: 0; height: 60%; width: 100%; background: #0f172a; transform: translateY(100%); transition: 0.4s; z-index: 200; border-top: 3px solid var(--neon); display: flex; flex-direction: column; }
+        #chat-ui { 
+            position: fixed; top: 0; height: 75%; width: 100%; background: #0f172a; 
+            transform: translateY(-100%); transition: 0.4s; 
+            z-index: 2000; border-bottom: 3px solid var(--neon); display: flex; flex-direction: column; 
+        }
         #chat-ui.open { transform: translateY(0); }
     </style>
 </head>
@@ -94,8 +86,11 @@
 
     <div class="hud">
         <div class="stats-row">
-            <span id="h-class" style="color:var(--neon); font-family:'Orbitron'; font-size:0.65rem;">SNAKE RPG</span>
-            <span style="font-size: 0.8rem; font-weight: 800;">LVL <span id="lvl">1</span> | <span id="score">0</span> XP</span>
+            <div>
+                <span id="h-class" style="color:var(--neon); font-family:'Orbitron'; font-size:0.6rem;">SNAKE RPG</span>
+                <div style="font-size: 0.85rem; font-weight: 800;">LVL <span id="lvl">1</span> | <span id="score">0</span> XP</div>
+            </div>
+            <button class="chat-btn" onclick="tgChat()">💬 TAVERNA</button>
         </div>
         <div class="bar-outer"><div id="xp-bar" class="bar-inner" style="background:var(--neon)"></div></div>
         <div class="bar-outer"><div id="mana-bar" class="bar-inner" style="background:var(--mana); width:100%"></div></div>
@@ -105,17 +100,17 @@
         <canvas id="gameCanvas" width="400" height="400"></canvas>
 
         <div id="menu" class="modal">
-            <h1 style="color:var(--neon); font-family:'Orbitron'; font-size: 1.8rem;">ASCENSION</h1>
-            <input type="text" id="nick" placeholder="NOME DO HERÓI" maxlength="10" style="padding:15px; width:100%; background:#000; border:1px solid #334155; color:#fff; border-radius:8px; text-align:center; margin-bottom:15px; font-family:'Orbitron';">
+            <h1 style="color:var(--neon); font-family:'Orbitron'; font-size: 2rem; margin-bottom: 20px;">ASCENSION</h1>
+            <input type="text" id="nick" placeholder="NOME DO HERÓI" maxlength="10" style="padding:18px; width:100%; background:#000; border:1px solid #334155; color:#fff; border-radius:12px; text-align:center; margin-bottom:15px; font-family:'Orbitron';">
             <button class="class-btn active" onclick="sel('Ladino','#22c55e',this)">⚡ LADINO (SPEED)</button>
             <button class="class-btn" onclick="sel('Guerreiro','#ef4444',this)">🛡️ GUERREIRO (TANK)</button>
             <button class="class-btn" onclick="sel('Mago','#a855f7',this)">🔮 MAGO (BLINK)</button>
-            <button onclick="start()" style="margin-top:15px; width:100%; padding:18px; border:none; border-radius:10px; background:var(--neon); color:#000; font-weight:900; font-family:'Orbitron';">INICIAR</button>
+            <button onclick="start()" style="margin-top:20px; width:100%; padding:22px; border:none; border-radius:15px; background:var(--neon); color:#000; font-weight:900; font-family:'Orbitron';">INICIAR</button>
         </div>
 
         <div id="death" class="modal" style="display:none">
-            <h1 style="color:var(--danger); font-family:'Orbitron';">DERROTADO!</h1>
-            <div id="rank-box" style="width:100%; max-width:260px; margin:15px 0; background:#0f172a; padding:15px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+            <h1 style="color:var(--danger); font-family:'Orbitron';">FIM DA LINHA</h1>
+            <div id="rank-box" style="width:100%; max-width:280px; margin:20px 0; background:#0f172a; padding:15px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
                 <b style="font-size:0.7rem; color:#94a3b8;">RANKING GLOBAL</b>
                 <div id="rank-list" style="margin-top:10px; font-size: 0.8rem;"></div>
             </div>
@@ -124,27 +119,24 @@
     </div>
 
     <div class="controls">
-        <button class="chat-trigger" onclick="tgChat()">💬</button>
-        
         <div class="joy">
             <button class="btn-c" style="grid-column: 2; grid-row: 1;" onpointerdown="mv('UP')">▲</button>
             <button class="btn-c" style="grid-column: 1; grid-row: 2;" onpointerdown="mv('LEFT')">◀</button>
             <button class="btn-c" style="grid-column: 2; grid-row: 2;" onpointerdown="mv('DOWN')">▼</button>
             <button class="btn-c" style="grid-column: 3; grid-row: 2;" onpointerdown="mv('RIGHT')">▶</button>
         </div>
-
-        <button class="skill-ring" onclick="skill()">SKILL<br><small style="color:var(--mana)">40 MP</small></button>
+        <button class="skill-btn" onclick="skill()">SKILL<br><small style="color:var(--mana)">40 MP</small></button>
     </div>
 
     <div id="chat-ui">
-        <div style="padding:15px; background:#1e293b; display:flex; justify-content:space-between; align-items:center;">
-            <b style="font-size:0.8rem;">TAVERNA GLOBAL</b> 
-            <span onclick="tgChat()" style="padding:5px 12px; cursor:pointer;">✖</span>
+        <div style="padding:20px; background:#1e293b; display:flex; justify-content:space-between; align-items:center;">
+            <b style="font-family:'Orbitron'; color:var(--neon)">TAVERNA GLOBAL</b> 
+            <span onclick="tgChat()" style="font-size:1.5rem; cursor:pointer;">✕</span>
         </div>
-        <div id="chat-box" style="flex:1; overflow-y:auto; padding:15px;"></div>
-        <div style="padding:12px; display:flex; gap:8px; background:#020617;">
-            <input type="text" id="chat-in" placeholder="..." style="flex:1; padding:12px; border-radius:8px; border:none; background:#1e293b; color:#fff;">
-            <button onclick="send()" style="background:var(--neon); border:none; padding:0 20px; border-radius:8px; font-weight:bold;">OK</button>
+        <div id="chat-box" style="flex:1; overflow-y:auto; padding:20px;"></div>
+        <div style="padding:15px; display:flex; gap:10px; background:#020617;">
+            <input type="text" id="chat-in" placeholder="..." style="flex:1; padding:15px; border-radius:10px; border:none; background:#1e293b; color:#fff;">
+            <button onclick="send()" style="background:var(--neon); border:none; padding:0 20px; border-radius:10px; font-weight:bold;">ENVIAR</button>
         </div>
     </div>
 
@@ -163,8 +155,6 @@
             o.start(); o.stop(audioCtx.currentTime + d);
         }
 
-        function triggerShake() { cvs.classList.add('shake'); setTimeout(() => cvs.classList.remove('shake'), 300); }
-
         function sel(n, c, el) {
             pClass = { name:n, color:c };
             document.querySelectorAll('.class-btn').forEach(b => b.classList.remove('active'));
@@ -182,8 +172,7 @@
         function init() {
             snake = [{x:10*box, y:10*box}]; dir = nextDir = "RIGHT";
             score = 0; lvl = 1; mana = 100; speed = 145;
-            foods = []; 
-            for(let i=0; i<3; i++) spawn('food'); // GERA 3 COMIDAS NO INICIO
+            foods = []; for(let i=0; i<3; i++) spawn('food'); // MANTÉM 3 COMIDAS
             spawn('mana'); run();
         }
 
@@ -194,13 +183,12 @@
 
         function mv(d) {
             const op = { UP:'DOWN', DOWN:'UP', LEFT:'RIGHT', RIGHT:'LEFT' };
-            if(d !== op[dir]) { nextDir = d; if(navigator.vibrate) navigator.vibrate(15); }
+            if(d !== op[dir]) { nextDir = d; if(navigator.vibrate) navigator.vibrate(20); }
         }
 
         function skill() {
             if(mana < 40 || !running) return;
-            mana -= 40; invul = true; beep(900, 0.2); triggerShake();
-            // Se for Mago, teleporta para a primeira comida da lista
+            mana -= 40; invul = true; beep(900, 0.2);
             if(pClass.name === 'Mago' && foods.length > 0) { snake[0].x = foods[0].x; snake[0].y = foods[0].y; }
             setTimeout(() => invul = false, 3000);
         }
@@ -216,15 +204,10 @@
                 die(); return;
             }
 
-            // Checa colisão com qualquer uma das 3 comidas
             let ateIdx = foods.findIndex(f => f.x === head.x && f.y === head.y);
-
             if(ateIdx !== -1) {
-                score += 10; 
-                foods.splice(ateIdx, 1); // Remove a comida comida
-                spawn('food'); // Cria uma nova para manter 3
-                beep(600, 0.08);
-                if(score % 50 === 0) { lvl++; speed = Math.max(50, speed-12); run(); beep(1000, 0.1); }
+                score += 10; foods.splice(ateIdx, 1); spawn('food'); beep(600, 0.08);
+                if(score % 50 === 0) { lvl++; speed = Math.max(50, speed-12); run(); }
             } else if(head.x === manaOrb.x && head.y === manaOrb.y) {
                 mana = Math.min(100, mana + 45); spawn('mana'); beep(450, 0.1);
             } else {
@@ -235,18 +218,14 @@
 
         function draw() {
             ctx.clearRect(0, 0, 400, 400);
-            // Desenha as 3 comidas
             foods.forEach(f => {
                 ctx.fillStyle = "#fff"; ctx.shadowBlur = 15; ctx.shadowColor = "#fff";
                 ctx.beginPath(); ctx.arc(f.x+10, f.y+10, 6, 0, Math.PI*2); ctx.fill();
             });
-            // Desenha Mana
             ctx.fillStyle = "#3b82f6"; ctx.shadowColor = "#3b82f6";
             ctx.beginPath(); ctx.arc(manaOrb.x+10, manaOrb.y+10, 5, 0, Math.PI*2); ctx.fill();
-            
             ctx.shadowBlur = 0;
             snake.forEach((s, i) => {
-                ctx.shadowBlur = invul ? 20 : 10; ctx.shadowColor = invul ? "#fff" : pClass.color;
                 ctx.fillStyle = invul ? "#fff" : (i === 0 ? "#fff" : pClass.color);
                 ctx.beginPath(); ctx.roundRect(s.x+1, s.y+1, box-2, box-2, 6); ctx.fill();
             });
@@ -261,7 +240,7 @@
         }
 
         async function die() {
-            running = false; clearInterval(loop); triggerShake(); beep(120, 0.5, 0.2); 
+            running = false; clearInterval(loop); beep(120, 0.5, 0.2); 
             document.getElementById('death').style.display = 'flex';
             try {
                 await fetch('/save-ranking', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario:hero, pontos:score}) });
@@ -275,11 +254,18 @@
             const i = document.getElementById('chat-in'); if(!i.value) return;
             try { await fetch('/send-chat', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario:hero, texto:i.value}) }); i.value = ""; } catch(e) {}
         }
-
+        async function loadChat() {
+            if(!document.getElementById('chat-ui').classList.contains('open')) return;
+            try {
+                const r = await fetch('/get-chat'), d = await r.json();
+                document.getElementById('chat-box').innerHTML = d.map(m => `<div style="margin-bottom:10px;"><b style="color:var(--neon)">${m.usuario}:</b> ${m.texto}</div>`).join("");
+                const b = document.getElementById('chat-box'); b.scrollTop = b.scrollHeight;
+            } catch(e) {}
+        }
         async function loadRank() {
             try {
                 const r = await fetch('/get-ranking'), d = await r.json();
-                document.getElementById('rank-list').innerHTML = d.slice(0,5).map((m,i) => `<div>${i+1}º ${m.usuario} - ${m.pontos} XP</div>`).join("");
+                document.getElementById('rank-list').innerHTML = d.slice(0,5).map((m,i) => `<div style="display:flex; justify-content:space-between; margin:5px 0;"><span>${i+1}º ${m.usuario}</span><b>${m.pontos}</b></div>`).join("");
             } catch(e) {}
         }
 
@@ -287,15 +273,7 @@
         let stars = []; function resz() { sCvs.width = window.innerWidth; sCvs.height = window.innerHeight; stars = Array(100).fill().map(() => ({x:Math.random()*sCvs.width, y:Math.random()*sCvs.height, s:Math.random()*2})); }
         function drwS() { sCtx.clearRect(0,0,sCvs.width, sCvs.height); sCtx.fillStyle="#fff"; stars.forEach(s => { s.y+=0.3; if(s.y>sCvs.height) s.y=0; sCtx.fillRect(s.x, s.y, s.s, s.s); }); requestAnimationFrame(drwS); }
         window.onresize = resz; resz(); drwS();
-
-        setInterval(async () => {
-            if(document.getElementById('chat-ui').classList.contains('open')) {
-                try {
-                    const r = await fetch('/get-chat'), d = await r.json();
-                    document.getElementById('chat-box').innerHTML = d.map(m => `<div><b style="color:var(--neon)">${m.usuario}:</b> ${m.texto}</div>`).join("");
-                } catch(e) {}
-            }
-        }, 3000);
+        setInterval(loadChat, 3000);
     </script>
 </body>
 </html>
