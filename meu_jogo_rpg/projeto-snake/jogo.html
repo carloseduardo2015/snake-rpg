@@ -20,70 +20,80 @@
         #starfield { position: fixed; inset: 0; z-index: -1; }
 
         /* HUD */
-        .hud { padding: 10px 20px; background: var(--panel); border-bottom: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); z-index: 5; }
+        .hud { padding: 10px 20px; background: var(--panel); border-bottom: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); z-index: 5; position: relative; }
         .stats-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
         .bar-outer { height: 6px; background: #000; border-radius: 3px; overflow: hidden; margin-bottom: 4px; border: 1px solid rgba(255,255,255,0.05); }
         .bar-inner { height: 100%; width: 0%; transition: 0.3s; }
 
+        /* BOTÃO FULLSCREEN */
+        .fs-btn {
+            position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 5px 10px;
+            border-radius: 5px; font-size: 0.6rem; font-family: 'Orbitron'; cursor: pointer;
+        }
+
         /* AREA DO JOGO */
         #viewport { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
         canvas#gameCanvas { 
-            width: 82vw; height: 82vw; max-width: 380px; max-height: 380px;
-            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px; background: rgba(0,0,0,0.4);
+            width: 85vw; height: 85vw; max-width: 380px; max-height: 380px;
+            border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 12px; background: rgba(0,0,0,0.6);
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
         .shake { animation: shakeAnim 0.3s; }
         @keyframes shakeAnim {
-            0% { transform: translate(4px, 4px); }
-            25% { transform: translate(-4px, -4px); }
-            50% { transform: translate(4px, -4px); }
-            75% { transform: translate(-4px, 4px); }
+            0% { transform: translate(3px, 3px); }
+            25% { transform: translate(-3px, -3px); }
+            50% { transform: translate(3px, -3px); }
+            75% { transform: translate(-3px, 3px); }
             100% { transform: translate(0, 0); }
         }
 
         /* CONTROLES */
         .controls { 
-            background: var(--panel); height: 200px; display: flex; align-items: center; 
+            background: var(--panel); height: 210px; display: flex; align-items: center; 
             justify-content: center; border-top: 1px solid rgba(255,255,255,0.1); position: relative;
             padding-bottom: env(safe-area-inset-bottom);
         }
-        .joy { display: grid; grid-template-columns: repeat(3, 65px); grid-template-rows: repeat(2, 65px); gap: 8px; }
+        .joy { display: grid; grid-template-columns: repeat(3, 65px); grid-template-rows: repeat(2, 65px); gap: 10px; }
         .btn-c { 
-            width: 65px; height: 65px; background: #1e293b; border: 1px solid #334155; border-radius: 15px; 
+            width: 65px; height: 65px; background: #1e293b; border: 1px solid #334155; border-radius: 18px; 
             color: #fff; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; 
-            box-shadow: 0 5px 0 #0f172a; 
+            box-shadow: 0 4px 0 #0f172a; transition: 0.1s;
         }
         .btn-c:active { background: var(--neon); color: #000; transform: translateY(3px); box-shadow: none; }
 
         .skill-ring { 
-            position: absolute; right: 15px; width: 80px; height: 80px; border-radius: 50%; 
+            position: absolute; right: 20px; width: 85px; height: 85px; border-radius: 50%; 
             border: 3px solid var(--mana); background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, #020617 100%);
-            color: #fff; font-family: 'Orbitron'; font-weight: 900; font-size: 0.65rem; 
+            color: #fff; font-family: 'Orbitron'; font-weight: 900; font-size: 0.7rem; 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
         }
 
         .chat-trigger { 
-            position: absolute; left: 15px; background: #1e293b; border: 1px solid var(--neon); 
-            color: #fff; width: 55px; height: 55px; border-radius: 12px; font-size: 1.4rem;
+            position: absolute; left: 20px; background: #1e293b; border: 1px solid var(--neon); 
+            color: #fff; width: 55px; height: 55px; border-radius: 15px; font-size: 1.4rem;
             display: flex; align-items: center; justify-content: center;
         }
 
         /* MODAIS */
         .modal { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; padding: 25px; }
-        .class-btn { background: #1e293b; border: 1px solid #334155; color: #fff; padding: 14px; border-radius: 10px; width: 100%; margin: 4px 0; font-weight: bold; }
-        .class-btn.active { border-color: var(--neon); background: rgba(34, 197, 94, 0.1); }
+        .class-btn { background: #1e293b; border: 1px solid #334155; color: #fff; padding: 15px; border-radius: 12px; width: 100%; margin: 5px 0; font-weight: bold; text-align: left; }
+        .class-btn.active { border-color: var(--neon); background: rgba(34, 197, 94, 0.1); box-shadow: 0 0 10px rgba(34, 197, 94, 0.2); }
 
-        #chat-ui { position: fixed; bottom: 0; height: 60%; width: 100%; background: #0f172a; transform: translateY(100%); transition: 0.4s; z-index: 200; border-top: 3px solid var(--neon); display: flex; flex-direction: column; }
+        #chat-ui { position: fixed; bottom: 0; height: 65%; width: 100%; background: #0f172a; transform: translateY(100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; border-top: 3px solid var(--neon); display: flex; flex-direction: column; }
         #chat-ui.open { transform: translateY(0); }
-        #chat-box { flex: 1; overflow-y: auto; padding: 15px; font-size: 0.9rem; }
+        #chat-box { flex: 1; overflow-y: auto; padding: 15px; font-size: 0.9rem; line-height: 1.5; }
     </style>
 </head>
 <body>
     <canvas id="starfield"></canvas>
 
     <div class="hud">
+        <button class="fs-btn" onclick="toggleFS()">FULLSCREEN</button>
         <div class="stats-row">
-            <span id="h-class" style="color:var(--neon); font-family:'Orbitron'; font-size:0.65rem;">SNAKE RPG</span>
-            <span style="font-size: 0.8rem; font-weight: 800;">LVL <span id="lvl">1</span> | <span id="score">0</span> XP</span>
+            <span id="h-class" style="color:var(--neon); font-family:'Orbitron'; font-size:0.7rem; letter-spacing: 1px;">SNAKE RPG</span>
+            <span style="font-size: 0.85rem; font-weight: 800;">LVL <span id="lvl">1</span> | <span id="score">0</span> XP</span>
         </div>
         <div class="bar-outer"><div id="xp-bar" class="bar-inner" style="background:var(--neon)"></div></div>
         <div class="bar-outer"><div id="mana-bar" class="bar-inner" style="background:var(--mana); width:100%"></div></div>
@@ -93,22 +103,26 @@
         <canvas id="gameCanvas" width="400" height="400"></canvas>
 
         <div id="menu" class="modal">
-            <h1 style="color:var(--neon); font-family:'Orbitron';">SNAKE RPG</h1>
-            <input type="text" id="nick" placeholder="NOME DO HERÓI" maxlength="10" style="padding:15px; width:100%; background:#000; border:1px solid #334155; color:#fff; border-radius:8px; text-align:center; margin-bottom:15px;">
-            <button class="class-btn active" onclick="sel('Ladino','#22c55e',this)">⚡ LADINO (IMORTALIDADE)</button>
-            <button class="class-btn" onclick="sel('Guerreiro','#ef4444',this)">🛡️ GUERREIRO (RESISTÊNCIA)</button>
+            <h1 style="color:var(--neon); font-family:'Orbitron'; margin: 0;">SNAKE RPG</h1>
+            <p style="font-size: 0.65rem; color: #94a3b8; letter-spacing: 4px; margin-bottom: 25px;">AETHER ASCENSION</p>
+            
+            <input type="text" id="nick" placeholder="NOME DO HERÓI" maxlength="10" style="padding:15px; width:100%; background:#000; border:1px solid #334155; color:#fff; border-radius:10px; text-align:center; margin-bottom:20px; font-family: 'Orbitron'; font-size: 0.9rem;">
+            
+            <button class="class-btn active" onclick="sel('Ladino','#22c55e',this)">⚡ LADINO (DASH SOMBRIO)</button>
+            <button class="class-btn" onclick="sel('Guerreiro','#ef4444',this)">🛡️ GUERREIRO (BERSERK)</button>
             <button class="class-btn" onclick="sel('Mago','#a855f7',this)">🔮 MAGO (TELEPORTE)</button>
-            <button onclick="start()" style="margin-top:15px; width:100%; padding:18px; border:none; border-radius:10px; background:var(--neon); font-weight:900; font-family:'Orbitron';">INICIAR</button>
+            
+            <button onclick="start()" style="margin-top:20px; width:100%; padding:20px; border:none; border-radius:12px; background:var(--neon); color: #000; font-weight:900; font-family:'Orbitron'; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);">INICIAR JORNADA</button>
         </div>
 
         <div id="death" class="modal" style="display:none">
             <h1 style="color:var(--danger); font-family:'Orbitron';">DERROTADO!</h1>
-            <p id="pb" style="color:var(--gold); font-weight:bold; font-size:0.8rem;"></p>
-            <div id="rank-box" style="width:100%; background:#0f172a; padding:15px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); margin:15px 0;">
-                <b style="font-size:0.7rem; color:#94a3b8;">RANKING GLOBAL</b>
-                <div id="rank-list" style="margin-top:10px;"></div>
+            <p id="pb" style="color:var(--gold); font-weight:bold; font-size:0.8rem; margin-bottom: 15px;"></p>
+            <div id="rank-box" style="width:100%; background:rgba(15, 23, 42, 0.5); padding:15px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); margin-bottom:20px;">
+                <b style="font-size:0.7rem; color:#94a3b8; display: block; margin-bottom: 10px;">RANKING GLOBAL</b>
+                <div id="rank-list"></div>
             </div>
-            <button onclick="location.reload()" style="padding:15px 40px; border-radius:30px; border:none; background:var(--mana); color:#fff; font-weight:bold; font-family:'Orbitron';">REENCARNAR</button>
+            <button onclick="location.reload()" style="padding:15px 40px; border-radius:30px; border:none; background:var(--mana); color:#fff; font-weight:bold; font-family:'Orbitron'; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);">REENCARNAR</button>
         </div>
     </div>
 
@@ -124,14 +138,14 @@
     </div>
 
     <div id="chat-ui">
-        <div style="padding:15px; background:#1e293b; display:flex; justify-content:space-between; align-items:center;">
-            <b>TAVERNA GLOBAL</b> 
-            <span onclick="tgChat()" style="padding:5px 12px; background:rgba(255,255,255,0.1); border-radius:6px; cursor:pointer;">✖</span>
+        <div style="padding:15px; background:#1e293b; display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <b style="font-family: 'Orbitron'; font-size: 0.8rem;">TAVERNA GLOBAL</b> 
+            <span onclick="tgChat()" style="padding:8px 15px; background:rgba(239, 68, 68, 0.2); color: var(--danger); border-radius:8px; cursor:pointer; font-weight: bold;">FECHAR</span>
         </div>
         <div id="chat-box"></div>
-        <div style="padding:12px; display:flex; gap:8px; background:#020617;">
-            <input type="text" id="chat-in" placeholder="Diga algo..." style="flex:1; padding:12px; border-radius:8px; border:none; background:#1e293b; color:#fff;">
-            <button onclick="send()" style="background:var(--neon); border:none; padding:0 20px; border-radius:8px; font-weight:bold;">OK</button>
+        <div style="padding:15px; display:flex; gap:10px; background:#020617; border-top: 1px solid rgba(255,255,255,0.1);">
+            <input type="text" id="chat-in" placeholder="Diga algo aos heróis..." style="flex:1; padding:12px; border-radius:10px; border:1px solid #334155; background:#1e293b; color:#fff;">
+            <button onclick="send()" style="background:var(--neon); border:none; padding:0 25px; border-radius:10px; font-weight:900; color:#000;">ENVIAR</button>
         </div>
     </div>
 
@@ -139,6 +153,11 @@
         const cvs = document.getElementById("gameCanvas"), ctx = cvs.getContext("2d"), box = 20;
         let snake, food, manaOrb, dir, nextDir, score, lvl, mana, speed, loop, running = false;
         let pClass = { name:'Ladino', color:'#22c55e' }, hero = "", invul = false, audioCtx;
+
+        function toggleFS() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else if (document.exitFullscreen) document.exitFullscreen();
+        }
 
         function beep(f, d, v=0.08) {
             try {
@@ -185,9 +204,17 @@
 
         function skill() {
             if(mana < 40 || !running || invul) return;
-            mana -= 40; invul = true; beep(800, 0.2);
-            if(pClass.name === 'Mago') { snake[0].x = food.x; snake[0].y = food.y; ctx.fillStyle="#fff"; ctx.fillRect(0,0,400,400); }
-            setTimeout(() => { invul = false; beep(300, 0.1); }, 3000);
+            mana -= 40; beep(800, 0.2);
+            if(pClass.name === 'Mago') {
+                snake[0].x = food.x; snake[0].y = food.y; 
+                ctx.fillStyle="#fff"; ctx.fillRect(0,0,400,400); 
+            } else if(pClass.name === 'Guerreiro') {
+                invul = true; if(snake.length > 3) snake = snake.slice(0, Math.floor(snake.length / 2));
+                setTimeout(() => { invul = false; }, 4000);
+            } else if(pClass.name === 'Ladino') {
+                invul = true; let oldSpeed = speed; speed = 50; run();
+                setTimeout(() => { invul = false; speed = oldSpeed; run(); }, 3000);
+            }
         }
 
         function update() {
@@ -209,7 +236,7 @@
 
             if(head.x === food.x && head.y === food.y) {
                 score += 10; spawn('food'); beep(600, 0.08);
-                if(score % 50 === 0) { lvl++; speed = Math.max(50, speed-12); run(); }
+                if(score % 50 === 0) { lvl++; speed = Math.max(50, speed-12); if(!invul) run(); }
             } else if(head.x === manaOrb.x && head.y === manaOrb.y) {
                 mana = Math.min(100, mana + 45); spawn('mana'); beep(450, 0.1);
             } else { snake.pop(); mana = Math.min(100, mana + 0.15); }
@@ -219,16 +246,18 @@
         function draw() {
             ctx.clearRect(0, 0, 400, 400);
             const p = Math.sin(Date.now() / 200) * 5;
-            ctx.strokeStyle = "rgba(255,255,255,0.04)";
+            ctx.strokeStyle = "rgba(255,255,255,0.03)";
             for(let i=0; i<=400; i+=box) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,400); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(400,i); ctx.stroke(); }
-            ctx.fillStyle = "#fff"; ctx.shadowBlur = 10 + p; ctx.shadowColor = "#fff";
+            ctx.fillStyle = "#fff"; ctx.shadowBlur = 15 + p; ctx.shadowColor = "#fff";
             ctx.beginPath(); ctx.arc(food.x+10, food.y+10, 6 + p/4, 0, Math.PI*2); ctx.fill();
             ctx.fillStyle = "#3b82f6"; ctx.shadowColor = "#3b82f6";
             ctx.beginPath(); ctx.arc(manaOrb.x+10, manaOrb.y+10, 5 + p/5, 0, Math.PI*2); ctx.fill();
             ctx.shadowBlur = 0;
             snake.forEach((s, i) => {
-                ctx.fillStyle = invul ? "#fff" : (i === 0 ? "#fff" : pClass.color);
-                ctx.beginPath(); ctx.roundRect(s.x+1, s.y+1, box-2, box-2, 5); ctx.fill();
+                if(invul) { ctx.fillStyle = i === 0 ? "#fff" : "rgba(255,255,255,0.3)"; ctx.shadowBlur = 10; ctx.shadowColor = "#fff"; }
+                else { ctx.fillStyle = i === 0 ? "#fff" : pClass.color; }
+                ctx.beginPath(); ctx.roundRect(s.x+1, s.y+1, box-2, box-2, 6); ctx.fill();
+                ctx.shadowBlur = 0;
             });
         }
 
@@ -261,7 +290,7 @@
         async function loadChat() {
             try {
                 const r = await fetch('/get-chat'), d = await r.json();
-                document.getElementById('chat-box').innerHTML = d.map(m => `<div><b style="color:var(--neon)">${m.usuario}:</b> ${m.texto}</div>`).join("");
+                document.getElementById('chat-box').innerHTML = d.map(m => `<div style="margin-bottom:5px;"><b style="color:var(--neon)">${m.usuario}:</b> ${m.texto}</div>`).join("");
                 document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
             } catch(e){}
         }
@@ -269,7 +298,7 @@
         async function loadRank() {
             try {
                 const r = await fetch('/get-ranking'), d = await r.json();
-                document.getElementById('rank-list').innerHTML = d.slice(0,5).map((m,i) => `<div style="display:flex; justify-content:space-between; padding:5px 0; font-size:0.8rem;"><span>${i+1}º ${m.usuario}</span><b style="color:var(--neon)">${m.pontos} XP</b></div>`).join("");
+                document.getElementById('rank-list').innerHTML = d.slice(0,5).map((m,i) => `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.05);"><span>${i+1}º ${m.usuario}</span><b style="color:var(--neon)">${m.pontos} XP</b></div>`).join("");
             } catch(e){}
         }
 
@@ -278,6 +307,7 @@
         function drwS() { sCtx.clearRect(0,0,sCvs.width, sCvs.height); sCtx.fillStyle="#fff"; stars.forEach(s => { s.y+=0.3; if(s.y>sCvs.height) s.y=0; sCtx.globalAlpha=s.a; sCtx.fillRect(s.x, s.y, s.s, s.s); }); requestAnimationFrame(drwS); }
         window.onresize = resz; resz(); drwS();
 
+        loadChat(); loadRank();
         setInterval(() => { if(document.getElementById('chat-ui').classList.contains('open')) loadChat(); }, 3000);
     </script>
 </body>
