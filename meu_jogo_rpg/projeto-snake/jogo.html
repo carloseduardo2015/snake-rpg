@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SNAKE RPG: ASCENSION</title>
+    <title>SNAKE RPG: AETHER ASCENSION</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { 
             --neon: #22c55e; --mana: #3b82f6; --danger: #ef4444; --gold: #f59e0b;
-            --bg: #020617; --card: #111827;
+            --bg: #020617; --panel: rgba(15, 23, 42, 0.98);
         }
         * { touch-action: none; user-select: none; box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
         body { 
@@ -18,107 +18,113 @@
 
         #starfield { position: fixed; inset: 0; z-index: -1; }
 
-        /* HUD SUPERIOR */
-        .hud { padding: 15px 20px; background: rgba(15, 23, 42, 0.9); border-bottom: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); z-index: 5; }
-        .hud-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .taverna-btn { background: rgba(34, 197, 94, 0.1); border: 1px solid var(--neon); color: var(--neon); padding: 5px 12px; border-radius: 8px; font-family: 'Orbitron'; font-size: 0.7rem; }
-        .bar-outer { height: 6px; background: #000; border-radius: 3px; overflow: hidden; margin-top: 4px; border: 1px solid rgba(255,255,255,0.05); }
+        /* HUD */
+        .hud { padding: 10px 20px; background: var(--panel); border-bottom: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); z-index: 5; }
+        .stats-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .bar-outer { height: 6px; background: #000; border-radius: 3px; overflow: hidden; margin-bottom: 4px; border: 1px solid rgba(255,255,255,0.05); }
         .bar-inner { height: 100%; width: 0%; transition: 0.3s; }
 
-        /* ÁREA DO JOGO */
+        /* AREA DO JOGO */
         #viewport { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
         canvas#gameCanvas { 
-            width: 88vw; height: 88vw; max-width: 380px; max-height: 380px;
+            width: 85vw; height: 85vw; max-width: 380px; max-height: 380px;
             border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px; background: rgba(0,0,0,0.4);
         }
+        .shake { animation: shakeAnim 0.3s; }
+        @keyframes shakeAnim {
+            0%, 100% { transform: translate(0,0); }
+            25% { transform: translate(5px, 5px); }
+            50% { transform: translate(-5px, -5px); }
+            75% { transform: translate(5px, -5px); }
+        }
 
-        /* MENU INICIAL */
+        /* MENU DE CLASSES (CARDS) */
         .modal { position: absolute; inset: 0; background: var(--bg); display: flex; flex-direction: column; z-index: 100; padding: 25px; }
-        .class-card { background: var(--card); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 18px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
-        .class-card.active { border: 2px solid var(--neon); box-shadow: 0 0 20px rgba(34, 197, 94, 0.2); }
-        .class-info b { display: block; font-family: 'Orbitron'; font-size: 1rem; color: var(--neon); }
-        .class-info span { font-size: 0.75rem; opacity: 0.6; }
-        .start-btn { background: var(--neon); color: #000; border: none; padding: 20px; border-radius: 15px; font-family: 'Orbitron'; font-weight: 900; font-size: 1.2rem; margin-top: auto; }
-
-        /* MORTE */
-        #death { display: none; background: rgba(2, 6, 23, 0.98); align-items: center; justify-content: center; text-align: center; }
+        .class-card { 
+            background: #111827; border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; 
+            padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .class-card.active { border: 2px solid var(--neon); box-shadow: 0 0 15px rgba(34, 197, 94, 0.2); }
+        .class-info b { display: block; font-family: 'Orbitron'; color: var(--neon); font-size: 0.9rem; }
+        .class-info span { font-size: 0.7rem; opacity: 0.6; }
 
         /* CONTROLES */
-        .controls { height: 210px; background: #000; display: flex; align-items: center; justify-content: space-around; padding-bottom: env(safe-area-inset-bottom); border-top: 1px solid rgba(255,255,255,0.1); }
-        .d-pad { display: grid; grid-template-columns: repeat(3, 65px); grid-template-rows: repeat(2, 65px); gap: 8px; }
-        .btn-round { width: 62px; height: 62px; background: #161b22; border: none; border-radius: 50%; color: #fff; font-size: 1.3rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.6); }
-        .btn-round:active { background: var(--neon); color: #000; transform: scale(0.9); }
-        .skill-btn { width: 85px; height: 85px; border-radius: 22px; border: 2px solid var(--mana); background: rgba(59, 130, 246, 0.1); color: #fff; font-family: 'Orbitron'; font-size: 0.7rem; font-weight: 900; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+        .controls { height: 200px; background: var(--panel); display: flex; align-items: center; justify-content: center; position: relative; border-top: 1px solid rgba(255,255,255,0.1); }
+        .joy { display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(2, 60px); gap: 8px; }
+        .btn-c { width: 60px; height: 60px; background: #1e293b; border: none; border-radius: 12px; color: #fff; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 0 #000; }
+        .btn-c:active { transform: translateY(3px); box-shadow: none; background: var(--neon); color: #000; }
+
+        .skill-ring { position: absolute; right: 20px; width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--mana); display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Orbitron'; font-size: 0.6rem; font-weight: 900; background: rgba(59, 130, 246, 0.1); }
+        .chat-trigger { position: absolute; left: 20px; width: 50px; height: 50px; background: #1e293b; border-radius: 10px; border: 1px solid var(--neon); color: #fff; font-size: 1.2rem; }
 
         /* CHAT */
-        #chat-ui { position: fixed; bottom: 0; height: 65%; width: 100%; background: #0f172a; transform: translateY(100%); transition: 0.4s; z-index: 200; border-top: 3px solid var(--neon); display: flex; flex-direction: column; }
+        #chat-ui { position: fixed; bottom: 0; height: 60%; width: 100%; background: #0f172a; transform: translateY(100%); transition: 0.4s; z-index: 200; border-top: 3px solid var(--neon); display: flex; flex-direction: column; }
         #chat-ui.open { transform: translateY(0); }
-        .rank-item { display: flex; justify-content: space-between; font-size: 0.85rem; margin: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .rank-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; }
     </style>
 </head>
 <body>
     <canvas id="starfield"></canvas>
 
     <div class="hud">
-        <div class="hud-top">
-            <div>
-                <div style="font-family:'Orbitron'; font-size: 1.1rem;">LVL <span id="lvl">1</span> <small style="opacity:0.5">/ <span id="score">0</span> XP</small></div>
-            </div>
-            <button class="taverna-btn" onclick="tgChat()">TAVERNA</button>
+        <div class="stats-row">
+            <span id="h-class" style="color:var(--neon); font-family:'Orbitron'; font-size:0.7rem;">SNAKE RPG</span>
+            <span style="font-size: 0.8rem; font-weight: 800;">LVL <span id="lvl">1</span> | <span id="score">0</span> XP</span>
         </div>
-        <div class="bar-outer"><div id="xp-bar" class="bar-inner" style="background:var(--neon); width: 0%;"></div></div>
-        <div class="bar-outer"><div id="mana-bar" class="bar-inner" style="background:var(--mana); width: 100%;"></div></div>
+        <div class="bar-outer"><div id="xp-bar" class="bar-inner" style="background:var(--neon)"></div></div>
+        <div class="bar-outer"><div id="mana-bar" class="bar-inner" style="background:var(--mana); width:100%"></div></div>
     </div>
 
     <div id="viewport">
         <canvas id="gameCanvas" width="400" height="400"></canvas>
 
         <div id="menu" class="modal">
-            <h2 style="font-family:'Orbitron'; text-align:center; margin-bottom:20px; color:var(--neon)">SNAKE RPG</h2>
-            <input type="text" id="nick" placeholder="NOME DO HERÓI" maxlength="10" style="background:#0d1117; border:1px solid #30363d; color:#fff; padding:18px; border-radius:12px; text-align:center; margin-bottom:20px; width:100%; font-size:1rem;">
+            <h1 style="color:var(--neon); font-family:'Orbitron'; font-size: 1.4rem; text-align: center;">ASCENSION</h1>
+            <input type="text" id="nick" placeholder="NOME DO HERÓI" maxlength="10" style="padding:15px; width:100%; background:#000; border:1px solid #334155; color:#fff; border-radius:10px; text-align:center; margin-bottom:15px; font-family:'Orbitron';">
             
             <div class="class-card active" onclick="sel('Ladino','#22c55e',this)">
-                <div class="class-info"><b>LADINO</b><span>⚡ INVULNERÁVEL (3s)</span></div><div style="font-size:1.8rem">⚡</div>
+                <div class="class-info"><b>LADINO</b><span>⚡ INVULNERABILIDADE (3s)</span></div><div style="font-size:1.5rem">⚡</div>
             </div>
             <div class="class-card" onclick="sel('Guerreiro','#ef4444',this)">
-                <div class="class-info"><b>GUERREIRO</b><span>🛡️ RESISTÊNCIA</span></div><div style="font-size:1.8rem">🛡️</div>
+                <div class="class-info"><b>GUERREIRO</b><span>🛡️ SOBREVIVÊNCIA TANK</span></div><div style="font-size:1.5rem">🛡️</div>
             </div>
             <div class="class-card" onclick="sel('Mago','#a855f7',this)">
-                <div class="class-info"><b>MAGO</b><span>🔮 BLINK (TELEPORTE)</span></div><div style="font-size:1.8rem">🔮</div>
+                <div class="class-info"><b>MAGO</b><span>🔮 BLINK (TELEPORTE)</span></div><div style="font-size:1.5rem">🔮</div>
             </div>
             
-            <button class="start-btn" onclick="start()">INICIAR JORNADA</button>
+            <button onclick="start()" style="margin-top:auto; width:100%; padding:20px; border:none; border-radius:12px; background:var(--neon); color:#000; font-weight:900; font-family:'Orbitron';">INICIAR JORNADA</button>
         </div>
 
-        <div id="death" class="modal">
+        <div id="death" class="modal" style="display:none">
             <h1 style="color:var(--danger); font-family:'Orbitron';">DERROTADO!</h1>
             <p id="pb" style="font-size: 0.8rem; color: var(--gold); font-weight: bold;"></p>
-            <div style="width:100%; max-width:260px; margin:15px 0; background:#0f172a; padding:15px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+            <div style="width:100%; max-width:280px; margin:15px 0; background:#0f172a; padding:15px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
                 <b style="font-size:0.7rem; color:#94a3b8;">RANKING GLOBAL</b>
                 <div id="rank-list" style="margin-top:10px;"></div>
             </div>
-            <button onclick="location.reload()" style="padding:20px; width:100%; border-radius:15px; border:none; background:var(--mana); color:#fff; font-weight:bold; font-family:'Orbitron';">REENCARNAR</button>
+            <button onclick="location.reload()" style="padding:18px 40px; border-radius:12px; border:none; background:var(--mana); color:#fff; font-weight:bold; font-family:'Orbitron'; width:100%;">REENCARNAR</button>
         </div>
     </div>
 
     <div class="controls">
-        <div class="d-pad">
-            <button class="btn-round" style="grid-column: 2; grid-row: 1;" onpointerdown="mv('UP')">▲</button>
-            <button class="btn-round" style="grid-column: 1; grid-row: 2;" onpointerdown="mv('LEFT')">◀</button>
-            <button class="btn-round" style="grid-column: 2; grid-row: 2;" onpointerdown="mv('DOWN')">▼</button>
-            <button class="btn-round" style="grid-column: 3; grid-row: 2;" onpointerdown="mv('RIGHT')">▶</button>
+        <button class="chat-trigger" onclick="tgChat()">💬</button>
+        <div class="joy">
+            <button class="btn-c" style="grid-column: 2; grid-row: 1;" onpointerdown="mv('UP')">▲</button>
+            <button class="btn-c" style="grid-column: 1; grid-row: 2;" onpointerdown="mv('LEFT')">◀</button>
+            <button class="btn-c" style="grid-column: 2; grid-row: 2;" onpointerdown="mv('DOWN')">▼</button>
+            <button class="btn-c" style="grid-column: 3; grid-row: 2;" onpointerdown="mv('RIGHT')">▶</button>
         </div>
-        <button class="skill-btn" onclick="skill()">SKILL<br>40 MP</button>
+        <button class="skill-ring" onclick="skill()">SKILL<br><small style="color:var(--mana)">40 MP</small></button>
     </div>
 
     <div id="chat-ui">
         <div style="padding:15px; background:#1e293b; display:flex; justify-content:space-between; align-items:center;">
             <b style="font-size:0.8rem;">TAVERNA GLOBAL</b> 
-            <span onclick="tgChat()" style="padding:5px 12px; background:rgba(255,255,255,0.1); border-radius:6px;">✖</span>
+            <span onclick="tgChat()" style="cursor:pointer">✖</span>
         </div>
-        <div id="chat-box" style="flex:1; overflow-y:auto; padding:15px; font-size: 0.9rem;"></div>
+        <div id="chat-box" style="flex:1; overflow-y:auto; padding:15px; font-size:0.9rem;"></div>
         <div style="padding:12px; display:flex; gap:8px; background:#020617;">
-            <input type="text" id="chat-in" placeholder="Mensagem..." style="flex:1; padding:12px; border-radius:8px; border:none; background:#1e293b; color:#fff;">
+            <input type="text" id="chat-in" placeholder="..." style="flex:1; padding:12px; border-radius:8px; border:none; background:#1e293b; color:#fff;">
             <button onclick="send()" style="background:var(--neon); border:none; padding:0 20px; border-radius:8px; font-weight:bold;">OK</button>
         </div>
     </div>
@@ -143,6 +149,7 @@
             document.querySelectorAll('.class-card').forEach(b => b.classList.remove('active'));
             el.classList.add('active');
             document.documentElement.style.setProperty('--neon', c);
+            beep(400, 0.1);
         }
 
         function start() {
@@ -164,13 +171,18 @@
 
         function mv(d) {
             const op = { UP:'DOWN', DOWN:'UP', LEFT:'RIGHT', RIGHT:'LEFT' };
-            if(d !== op[dir]) { nextDir = d; if(navigator.vibrate) navigator.vibrate(12); }
+            if(d !== op[dir]) { nextDir = d; if(navigator.vibrate) navigator.vibrate(10); }
         }
 
         function skill() {
             if(mana < 40 || !running) return;
-            mana -= 40; invul = true; beep(900, 0.2);
-            if(pClass.name === 'Mago') { snake[0].x = food.x; snake[0].y = food.y; }
+            mana -= 40; invul = true; beep(800, 0.2);
+            if(pClass.name === 'Mago') {
+                // Efeito visual de Blink
+                ctx.fillStyle = "white";
+                ctx.fillRect(0,0,400,400);
+                snake[0].x = food.x; snake[0].y = food.y;
+            }
             setTimeout(() => invul = false, 3000);
         }
 
@@ -181,6 +193,7 @@
             if(dir === 'UP') head.y -= box; if(dir === 'DOWN') head.y += box;
             if(dir === 'LEFT') head.x -= box; if(dir === 'RIGHT') head.x += box;
 
+            // Colisão
             if(head.x < 0 || head.x >= 400 || head.y < 0 || head.y >= 400 || (!invul && snake.some(s => s.x === head.x && s.y === head.y))) {
                 die(); return;
             }
@@ -198,17 +211,16 @@
 
         function draw() {
             ctx.clearRect(0, 0, 400, 400);
-            const pulse = Math.sin(Date.now() / 200) * 4;
-            // Grade de fundo leve
+            const p = Math.sin(Date.now() / 200) * 5;
+            // Grade
             ctx.strokeStyle = "rgba(255,255,255,0.03)";
-            for(let i=0; i<400; i+=box) { ctx.strokeRect(i, 0, box, 400); ctx.strokeRect(0, i, 400, box); }
-
-            ctx.fillStyle = "#fff"; ctx.shadowBlur = 12 + pulse; ctx.shadowColor = "#fff";
+            for(let i=0; i<400; i+=box) { ctx.strokeRect(i,0,box,400); ctx.strokeRect(0,i,400,box); }
+            // Comida e Mana
+            ctx.fillStyle = "#fff"; ctx.shadowBlur = 10+p; ctx.shadowColor = "#fff";
             ctx.beginPath(); ctx.arc(food.x+10, food.y+10, 6, 0, Math.PI*2); ctx.fill();
-            
             ctx.fillStyle = "#3b82f6"; ctx.shadowColor = "#3b82f6";
             ctx.beginPath(); ctx.arc(manaOrb.x+10, manaOrb.y+10, 5, 0, Math.PI*2); ctx.fill();
-            
+            // Cobra
             ctx.shadowBlur = 0;
             snake.forEach((s, i) => {
                 ctx.fillStyle = invul ? "#fff" : (i === 0 ? "#fff" : pClass.color);
@@ -221,24 +233,28 @@
             document.getElementById('lvl').innerText = lvl;
             document.getElementById('xp-bar').style.width = (score % 50 * 2) + "%";
             document.getElementById('mana-bar').style.width = mana + "%";
+            document.getElementById('h-class').innerText = pClass.name.toUpperCase();
         }
 
         async function die() {
-            running = false; clearInterval(loop); beep(120, 0.5, 0.2); 
+            running = false; clearInterval(loop); 
+            cvs.classList.add('shake'); beep(100, 0.5);
             const best = localStorage.getItem('rpg_pb') || 0;
             if(score > best) localStorage.setItem('rpg_pb', score);
-            document.getElementById('pb').innerText = `Recorde Pessoal: ${Math.max(score, best)} XP`;
+            document.getElementById('pb').innerText = `Recorde: ${Math.max(score, best)} XP`;
             document.getElementById('death').style.display = 'flex';
-            try { await fetch('/save-ranking', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario:hero, pontos:score}) }); } catch(e){}
-            loadRank();
+            try {
+                await fetch('/save-ranking', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario:hero, pontos:score}) });
+                loadRank();
+            } catch(e) {}
         }
 
         function run() { clearInterval(loop); loop = setInterval(update, speed); }
-        function tgChat() { document.getElementById('chat-ui').classList.toggle('open'); }
+        function tgChat() { document.getElementById('chat-ui').classList.toggle('open'); loadChat(); }
         async function send() {
             const i = document.getElementById('chat-in'); if(!i.value) return;
-            try { await fetch('/send-chat', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario:hero, texto:i.value}) }); } catch(e){}
-            i.value = "";
+            await fetch('/send-chat', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario:hero, texto:i.value}) });
+            i.value = ""; loadChat();
         }
 
         async function loadRank() {
@@ -248,20 +264,18 @@
             } catch(e) {}
         }
 
-        // Estrelas de Fundo
-        const sCvs = document.getElementById('starfield'), sCtx = sCvs.getContext('2d');
-        let stars = []; function resz() { sCvs.width = window.innerWidth; sCvs.height = window.innerHeight; stars = Array(80).fill().map(() => ({x:Math.random()*sCvs.width, y:Math.random()*sCvs.height, s:Math.random()*2, a:Math.random()})); }
-        function drwS() { sCtx.clearRect(0,0,sCvs.width, sCvs.height); sCtx.fillStyle="#fff"; stars.forEach(s => { s.y+=0.3; if(s.y>sCvs.height) s.y=0; sCtx.globalAlpha=s.a; sCtx.fillRect(s.x, s.y, s.s, s.s); }); requestAnimationFrame(drwS); }
-        window.onresize = resz; resz(); drwS();
+        async function loadChat() {
+            try {
+                const r = await fetch('/get-chat'), d = await r.json();
+                document.getElementById('chat-box').innerHTML = d.map(m => `<div><b style="color:var(--neon)">${m.usuario}:</b> ${m.texto}</div>`).join("");
+            } catch(e) {}
+        }
 
-        setInterval(async () => {
-            if(document.getElementById('chat-ui').classList.contains('open')) {
-                try {
-                    const r = await fetch('/get-chat'), d = await r.json();
-                    document.getElementById('chat-box').innerHTML = d.map(m => `<div><b style="color:var(--neon)">${m.usuario}:</b> ${m.texto}</div>`).join("");
-                } catch(e) {}
-            }
-        }, 3000);
+        // Estrelas
+        const sCvs = document.getElementById('starfield'), sCtx = sCvs.getContext('2d');
+        let stars = []; function resz() { sCvs.width = window.innerWidth; sCvs.height = window.innerHeight; stars = Array(80).fill().map(() => ({x:Math.random()*sCvs.width, y:Math.random()*sCvs.height, s:Math.random()*2})); }
+        function drwS() { sCtx.clearRect(0,0,sCvs.width, sCvs.height); sCtx.fillStyle="#fff"; stars.forEach(s => { s.y+=0.2; if(s.y>sCvs.height) s.y=0; sCtx.fillRect(s.x, s.y, s.s, s.s); }); requestAnimationFrame(drwS); }
+        window.onresize = resz; resz(); drwS();
     </script>
 </body>
 </html>
