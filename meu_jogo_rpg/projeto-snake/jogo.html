@@ -1,88 +1,50 @@
-Carlos Eduardo - 2026
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SNAKE RPG: AETHER ASCENSION - ULTRA</title>
+    <title>SNAKE RPG: AETHER ASCENSION</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { 
             --neon: #22c55e; --mana: #3b82f6; --danger: #ef4444; --gold: #f59e0b;
-            --bg: #020617; --panel: rgba(15, 23, 42, 0.95);
+            --bg: #020617; --panel: rgba(15, 23, 42, 0.98);
         }
         * { touch-action: none; user-select: none; box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
-        html, body { position: fixed; overflow: hidden; width: 100%; height: 100%; overscroll-behavior: none; background: var(--bg); }
+        html, body { position: fixed; overflow: hidden; width: 100%; height: 100%; overscroll-behavior: none; margin: 0; background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; }
         
-        body { 
-            margin: 0; color: #fff; font-family: 'Inter', sans-serif; 
-            height: 100vh; display: flex; flex-direction: column;
-        }
+        #starfield { position: fixed; inset: 0; z-index: -1; }
 
-        #starfield { position: fixed; inset: 0; z-index: -1; opacity: 0.6; }
+        .hud { padding: 10px 20px; padding-top: env(safe-area-inset-top, 10px); background: var(--panel); border-bottom: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); z-index: 5; flex-shrink: 0; }
+        .stats-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .bar-outer { height: 6px; background: #000; border-radius: 3px; overflow: hidden; margin-bottom: 4px; border: 1px solid rgba(255,255,255,0.05); }
+        .bar-inner { height: 100%; width: 0%; transition: 0.3s; }
 
-        /* HUD APRIMORADA */
-        .hud { 
-            padding: 15px 20px; padding-top: env(safe-area-inset-top, 15px); 
-            background: linear-gradient(to bottom, var(--panel), transparent); 
-            z-index: 5; flex-shrink: 0;
-        }
-        .stats-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .bar-outer { height: 8px; background: rgba(0,0,0,0.5); border-radius: 4px; overflow: hidden; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.1); }
-        .bar-inner { height: 100%; width: 0%; transition: 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+        .top-btns { display: flex; gap: 8px; }
+        .top-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 0.65rem; font-family: 'Orbitron'; cursor: pointer; }
 
-        .top-btns { display: flex; gap: 10px; }
-        .top-btn { 
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
-            color: #fff; padding: 8px 15px; border-radius: 8px; font-size: 0.7rem; 
-            font-family: 'Orbitron'; cursor: pointer; transition: 0.2s;
-        }
-        .top-btn:active { background: var(--neon); color: #000; }
+        #viewport { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; padding: 10px; }
+        canvas#gameCanvas { max-width: 100%; max-height: 100%; aspect-ratio: 1/1; border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 12px; background: rgba(0,0,0,0.6); box-shadow: 0 0 25px rgba(0,0,0,0.7); image-rendering: pixelated; }
 
-        /* VIEWPORT */
-        #viewport { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; padding: 15px; }
-        canvas#gameCanvas { 
-            max-width: 100%; max-height: 100%; aspect-ratio: 1/1;
-            border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 16px; 
-            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
-            box-shadow: 0 0 40px rgba(0,0,0,0.8);
-        }
+        .controls { background: var(--panel); height: 230px; display: flex; align-items: center; justify-content: center; border-top: 1px solid rgba(255,255,255,0.1); position: relative; padding-bottom: env(safe-area-inset-bottom, 20px); flex-shrink: 0; }
+        .joy { display: grid; grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 12px; }
+        .btn-c { width: 75px; height: 75px; background: #1e293b; border: 1px solid #334155; border-radius: 20px; color: #fff; font-size: 2rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 0 #0f172a; transition: 0.1s; }
+        .btn-c:active { background: var(--neon); color: #000; transform: translateY(4px); box-shadow: none; }
 
-        /* CONTROLES DINÂMICOS */
-        .controls { 
-            background: var(--panel); height: 240px; display: flex; align-items: center; 
-            justify-content: center; border-top: 1px solid rgba(255,255,255,0.1); 
-            position: relative; padding-bottom: env(safe-area-inset-bottom, 20px);
-        }
-        .joy { display: grid; gap: 15px; }
-        .btn-c { 
-            width: 80px; height: 80px; background: #1e293b; border: 2px solid #334155; 
-            border-radius: 24px; color: #fff; display: flex; align-items: center; 
-            justify-content: center; box-shadow: 0 6px 0 #0f172a; transition: 0.1s;
-        }
-        .btn-c:active { transform: translateY(4px); box-shadow: none; background: var(--neon); color: #000; }
+        .skill-ring { position: absolute; right: 20px; width: 95px; height: 95px; border-radius: 50%; border: 4px solid var(--mana); background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, #020617 100%); color: #fff; font-family: 'Orbitron'; font-weight: 900; font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); z-index: 10; }
 
-        .skill-ring { 
-            position: absolute; right: 25px; width: 100px; height: 100px; border-radius: 50%; 
-            border: 4px solid var(--mana); background: #020617;
-            color: #fff; font-family: 'Orbitron'; font-weight: 900; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.3); z-index: 10;
-        }
-        .skill-ring:active { transform: scale(0.9); }
+        .modal { position: absolute; inset: 0; background: rgba(2, 6, 23, 0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; padding: 25px; overflow-y: auto; }
+        .class-btn { background: #1e293b; border: 1px solid #334155; color: #fff; padding: 12px; border-radius: 12px; width: 100%; margin: 4px 0; font-weight: bold; text-align: left; font-size: 0.8rem; }
+        .class-btn.active { border-color: var(--neon); background: rgba(34, 197, 94, 0.1); box-shadow: 0 0 10px rgba(34, 197, 94, 0.2); }
 
-        /* MODAIS */
-        .modal { position: absolute; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; padding: 30px; }
-        .class-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin: 15px 0; }
-        .class-btn { 
-            background: #1e293b; border: 2px solid transparent; color: #fff; padding: 15px 10px; 
-            border-radius: 12px; font-size: 0.7rem; font-weight: bold; text-align: center; transition: 0.3s;
-        }
-        .class-btn.active { border-color: var(--neon); background: rgba(34, 197, 94, 0.1); transform: scale(1.05); }
+        #chat-ui { position: fixed; bottom: 0; height: 70%; width: 100%; background: #0f172a; transform: translateY(100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; border-top: 3px solid var(--neon); display: flex; flex-direction: column; }
+        #chat-ui.open { transform: translateY(0); }
+        #chat-box { flex: 1; overflow-y: auto; padding: 15px; font-size: 0.95rem; line-height: 1.4; }
 
-        /* ANIMAÇÕES */
-        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+        .config-row { width: 100%; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); }
+        input[type=range] { width: 100%; accent-color: var(--neon); }
+        .shake { animation: shakeAnim 0.3s ease-in-out; }
+        @keyframes shakeAnim { 0%, 100% { transform: translate(0,0); } 20% { transform: translate(-5px, 5px); } 40% { transform: translate(5px, -5px); } 60% { transform: translate(-5px, -5px); } 80% { transform: translate(5px, 5px); } }
     </style>
 </head>
 <body>
@@ -90,121 +52,189 @@ Carlos Eduardo - 2026
 
     <div class="hud">
         <div class="stats-row">
-            <span id="h-class" style="color:var(--neon); font-family:'Orbitron'; font-size:0.7rem; letter-spacing:1px;">CLASSE</span>
+            <span id="h-class" style="color:var(--neon); font-family:'Orbitron'; font-size:0.65rem;">SNAKE RPG</span>
             <div class="top-btns">
-                <button class="top-btn" onclick="tgChat()">CHAT</button>
+                <button class="top-btn" onclick="tgChat()">💬 TAVERNA</button>
                 <button class="top-btn" onclick="toggleFS()">[ ]</button>
             </div>
-            <span style="font-size: 0.9rem; font-weight: 900; font-family:'Orbitron';">LVL <span id="lvl" style="color:var(--gold)">1</span></span>
+            <span style="font-size: 0.85rem; font-weight: 800;">LVL <span id="lvl">1</span> | <span id="score">0</span> XP</span>
         </div>
-        <div class="bar-outer"><div id="xp-bar" class="bar-inner" style="background:var(--neon); box-shadow: 0 0 10px var(--neon);"></div></div>
-        <div class="bar-outer"><div id="mana-bar" class="bar-inner" style="background:var(--mana); box-shadow: 0 0 10px var(--mana);"></div></div>
+        <div class="bar-outer"><div id="xp-bar" class="bar-inner" style="background:var(--neon)"></div></div>
+        <div class="bar-outer"><div id="mana-bar" class="bar-inner" style="background:var(--mana); width:100%"></div></div>
     </div>
 
     <div id="viewport">
         <canvas id="gameCanvas" width="400" height="400"></canvas>
 
         <div id="menu" class="modal">
-            <h1 style="color:var(--neon); font-family:'Orbitron'; margin: 0; font-size: 1.8rem; text-shadow: 0 0 20px var(--neon);">SNAKE RPG</h1>
-            <p style="font-size: 0.6rem; color: #94a3b8; letter-spacing: 5px; margin-bottom: 25px;">AETHER ASCENSION</p>
+            <h1 style="color:var(--neon); font-family:'Orbitron'; margin: 0; font-size: 1.5rem;">SNAKE RPG</h1>
+            <p style="font-size: 0.5rem; color: #94a3b8; letter-spacing: 4px; margin-bottom: 15px;">AETHER ASCENSION</p>
             
-            <input type="text" id="nick" placeholder="NOME DO HERÓI" maxlength="10" style="padding:15px; width:100%; background:#0f172a; border:2px solid #334155; color:#fff; border-radius:12px; text-align:center; font-family:'Orbitron'; margin-bottom:10px;">
+            <input type="text" id="nick" placeholder="NOME DO HERÓI" maxlength="10" style="padding:12px; width:100%; background:#000; border:1px solid #334155; color:#fff; border-radius:10px; text-align:center; margin-bottom:10px; font-family: 'Orbitron'; font-size: 0.8rem;">
             
-            <div class="class-grid">
-                <button class="class-btn active" onclick="sel('Ladino','#22c55e',this)">⚡ LADINO</button>
-                <button class="class-btn" onclick="sel('Guerreiro','#ef4444',this)">🛡️ GUERREIRO</button>
-                <button class="class-btn" onclick="sel('Mago','#a855f7',this)">🔮 MAGO</button>
-                <button class="class-btn" onclick="sel('Clérigo','#fbbf24',this)">☀️ CLÉRIGO</button>
+            <div style="width: 100%; margin-bottom: 10px;">
+                <button class="class-btn active" onclick="sel('Ladino','#22c55e',this)">⚡ LADINO (DASH)</button>
+                <button class="class-btn" onclick="sel('Guerreiro','#ef4444',this)">🛡️ GUERREIRO (BERSERK)</button>
+                <button class="class-btn" onclick="sel('Mago','#a855f7',this)">🔮 MAGO (TELEPORTE)</button>
+                <button class="class-btn" onclick="sel('Clérigo','#fbbf24',this)">☀️ CLÉRIGO (SANTUÁRIO)</button>
             </div>
 
-            <div class="config-row" style="width:100%">
-                <div style="display:flex; justify-content:space-between; font-size:0.6rem; font-family:'Orbitron'; margin-bottom:5px;">
-                    <span>JOYSTICK SIZE</span>
-                    <span id="val-sz">80</span>
-                </div>
-                <input type="range" id="set-size" min="60" max="110" value="80" oninput="updateControlsPreview()">
+            <div class="config-row">
+                <p style="font-size:0.6rem; color:var(--neon); font-family:'Orbitron'; margin:0 0 8px 0;">AJUSTES DE CONTROLE</p>
+                <label style="font-size:0.55rem; display:block;">TAMANHO: <span id="val-sz">75</span>px</label>
+                <input type="range" id="set-size" min="50" max="110" value="75" oninput="updateControlsPreview()">
+                <label style="font-size:0.55rem; display:block; margin-top:8px;">POSIÇÃO DO JOYSTICK</label>
+                <input type="range" id="set-pos" min="0" max="100" value="50" oninput="updateControlsPreview()">
             </div>
 
-            <button onclick="start()" style="width:100%; padding:20px; border:none; border-radius:15px; background:var(--neon); color: #000; font-weight:900; font-family:'Orbitron'; font-size:1.1rem; margin-top:15px; box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);">INICIAR</button>
+            <button onclick="start()" style="width:100%; padding:15px; border:none; border-radius:12px; background:var(--neon); color: #000; font-weight:900; font-family:'Orbitron'; font-size: 1rem;">INICIAR JORNADA</button>
         </div>
 
         <div id="death" class="modal" style="display:none">
-            <h2 style="color:var(--danger); font-family:'Orbitron'; font-size:2rem;">DERROTADO</h2>
-            <p id="final-score" style="font-weight:bold; font-size:1.2rem;"></p>
-            <div id="rank-box" style="width:100%; background:rgba(255,255,255,0.05); padding:20px; border-radius:15px; margin:20px 0;">
-                <span style="font-size:0.7rem; color:var(--gold); font-family:'Orbitron';">RANKING GLOBAL</span>
-                <div id="rank-list" style="margin-top:10px; font-size:0.9rem;"></div>
+            <h1 style="color:var(--danger); font-family:'Orbitron';">DERROTADO!</h1>
+            <p id="pb" style="color:var(--gold); font-weight:bold; font-size:0.8rem; margin: 10px 0;"></p>
+            <div id="rank-box" style="width:100%; background:rgba(15, 23, 42, 0.5); padding:15px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); margin-bottom:15px;">
+                <b id="rank-title" style="font-size:0.7rem; color:#94a3b8; display: block; margin-bottom: 8px;">RANKING GLOBAL</b>
+                <div id="rank-list" style="font-size: 0.85rem;">[ Carregando... ]</div>
             </div>
-            <button onclick="location.reload()" style="padding:15px 50px; border-radius:30px; border:none; background:#fff; color:#000; font-weight:900; font-family:'Orbitron';">REENTRAR</button>
+            <button onclick="location.reload()" style="padding:15px 40px; border-radius:30px; border:none; background:var(--mana); color:#fff; font-weight:bold; font-family:'Orbitron'; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);">REENCARNAR</button>
         </div>
     </div>
 
     <div class="controls">
-        <div class="joy" id="joy-container">
+        <div class="joy">
             <button class="btn-c" style="grid-column: 2; grid-row: 1;" onpointerdown="mv('UP')">▲</button>
             <button class="btn-c" style="grid-column: 1; grid-row: 2;" onpointerdown="mv('LEFT')">◀</button>
             <button class="btn-c" style="grid-column: 2; grid-row: 2;" onpointerdown="mv('DOWN')">▼</button>
             <button class="btn-c" style="grid-column: 3; grid-row: 2;" onpointerdown="mv('RIGHT')">▶</button>
         </div>
-        <button class="skill-ring" id="skill-btn" onclick="skill()">SKILL<br><small id="mana-cost">40 MP</small></button>
+        <button class="skill-ring" onclick="skill()">SKILL<br><small>40 MP</small></button>
+    </div>
+
+    <div id="chat-ui">
+        <div style="padding:15px; background:#1e293b; display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <b style="font-family: 'Orbitron'; font-size: 0.8rem;">TAVERNA GLOBAL</b> 
+            <span onclick="tgChat()" style="color: var(--danger); font-weight: bold; cursor:pointer; padding: 5px 10px;">[ FECHAR ]</span>
+        </div>
+        <div id="chat-box"></div>
+        <div style="padding:15px; display:flex; gap:10px; background:#020617; border-top: 1px solid rgba(255,255,255,0.1);">
+            <input type="text" id="chat-in" placeholder="Diga algo..." style="flex:1; padding:12px; border-radius:10px; border:1px solid #334155; background:#1e293b; color:#fff;">
+            <button onclick="send()" style="background:var(--neon); border:none; padding:0 25px; border-radius:10px; font-weight:900; color:#000;">ENVIAR</button>
+        </div>
     </div>
 
     <script>
         const cvs = document.getElementById("gameCanvas"), ctx = cvs.getContext("2d"), box = 20;
         let snake, food, manaOrb, dir, nextDir, score, lvl, mana, speed, loop, running = false;
         let pClass = { name:'Ladino', color:'#22c55e' }, hero = "", invul = false, audioCtx;
+
+        // --- SISTEMA HÍBRIDO (LOCAL + RENDER) ---
         
-        let boss = { x: -100, y: -100, hp: 0, maxHp: 100, active: false, state: 'HUNT', timer: 0 };
-        let particles = [], floatTexts = [];
-
-        // EFEITOS ESPECIAIS
-        function createPart(x, y, color, count=8) {
-            for(let i=0; i<count; i++) particles.push({
-                x, y, vx:(Math.random()-0.5)*12, vy:(Math.random()-0.5)*12,
-                life: 1.0, color, size: Math.random()*4+1
-            });
-        }
-
-        function createFloatingText(x, y, txt, color) {
-            floatTexts.push({ x, y, txt, color, life: 1.0 });
-        }
-
-        function triggerBoss() {
-            boss.active = true; boss.hp = 100 + (lvl * 25); boss.maxHp = boss.hp;
-            boss.x = 200; boss.y = -50; boss.state = 'HUNT';
-            createFloatingText(200, 100, "BOSS SURGIU!", "#ef4444");
-            beep(100, 0.5, 0.15);
-        }
-
-        function hitBoss() {
-            boss.hp -= 20;
-            createPart(boss.x, boss.y, "#fff", 15);
-            createFloatingText(boss.x, boss.y - 30, "-20 HP", "#fff");
-            cvs.classList.add('shake'); setTimeout(()=>cvs.classList.remove('shake'), 200);
-            beep(500, 0.1);
-            if(boss.hp <= 0) {
-                boss.active = false; score += 150;
-                createPart(boss.x, boss.y, varColor('--gold'), 30);
-                beep(800, 0.4);
+        async function loadRank() {
+            try {
+                const r = await fetch('/get-ranking');
+                if(!r.ok) throw new Error();
+                const d = await r.json();
+                renderRank(d, "RANKING GLOBAL");
+            } catch(e) {
+                // Se o Render falhar, carrega o local
+                const local = JSON.parse(localStorage.getItem('snake_rpg_rank') || '[]');
+                renderRank(local, "RANKING LOCAL (OFFLINE)");
             }
         }
 
-        function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
-
-        function updateControlsPreview() {
-            const sz = document.getElementById('set-size').value;
-            document.getElementById('val-sz').innerText = sz;
-            document.getElementById('joy-container').style.gridTemplateColumns = `repeat(3, ${sz}px)`;
-            document.querySelectorAll('.btn-c').forEach(b => { b.style.width = b.style.height = sz+'px'; b.style.fontSize = (sz/3)+'px'; });
-            localStorage.setItem('joySize', sz);
+        function renderRank(data, title) {
+            document.getElementById('rank-title').innerText = title;
+            document.getElementById('rank-list').innerHTML = data.length > 0 
+                ? data.slice(0,5).map((m, i) => `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.05);"><span>${i+1}º ${m.usuario}</span><b style="color:var(--neon)">${m.pontos} XP</b></div>`).join("")
+                : "[ Sem registros ]";
         }
 
-        function beep(f, d, v=0.1) {
+        async function saveScore(name, pts) {
+            // Salva Local sempre (Backup)
+            let local = JSON.parse(localStorage.getItem('snake_rpg_rank') || '[]');
+            local.push({ usuario: name, pontos: pts });
+            local.sort((a, b) => b.pontos - a.pontos);
+            localStorage.setItem('snake_rpg_rank', JSON.stringify(local.slice(0, 10)));
+
+            // Tenta salvar no Render
+            try {
+                await fetch('/save-ranking', { 
+                    method:'POST', 
+                    headers:{'Content-Type':'application/json'}, 
+                    body:JSON.stringify({usuario:name, pontos:pts}) 
+                });
+            } catch(e) { console.log("Erro ao sincronizar ranking global"); }
+        }
+
+        async function send() {
+            const i = document.getElementById('chat-in'); if(!i.value) return;
+            const msg = { usuario: hero, texto: i.value };
+            
+            // Salva local para histórico offline
+            let logs = JSON.parse(localStorage.getItem('snake_rpg_logs') || '[]');
+            logs.push(msg);
+            localStorage.setItem('snake_rpg_logs', JSON.stringify(logs.slice(-20)));
+
+            try {
+                await fetch('/send-chat', { 
+                    method:'POST', 
+                    headers:{'Content-Type':'application/json'}, 
+                    body:JSON.stringify(msg) 
+                });
+                i.value = ""; loadChat();
+            } catch(e) { 
+                i.value = ""; loadChat(); // Mostra o local mesmo se falhar
+            }
+        }
+
+        async function loadChat() {
+            try {
+                const r = await fetch('/get-chat');
+                const d = await r.json();
+                displayChat(d);
+            } catch(e) {
+                const logs = JSON.parse(localStorage.getItem('snake_rpg_logs') || '[]');
+                displayChat(logs);
+            }
+        }
+
+        function displayChat(data) {
+            document.getElementById('chat-box').innerHTML = data.map(m => `<div style="margin-bottom:6px;"><b style="color:var(--neon)">${m.usuario}:</b> ${m.texto}</div>`).join("");
+            document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+        }
+
+        // --- LÓGICA DO JOGO (FUSAO COMPLETA) ---
+
+        function toggleFS() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e=>{});
+            else if (document.exitFullscreen) document.exitFullscreen();
+        }
+
+        function updateControlsPreview() {
+            const size = document.getElementById('set-size').value;
+            const posX = document.getElementById('set-pos').value;
+            document.getElementById('val-sz').innerText = size;
+            const joy = document.querySelector('.joy');
+            joy.style.gridTemplateColumns = `repeat(3, ${size}px)`;
+            joy.style.gridTemplateRows = `repeat(2, ${size}px)`;
+            document.querySelectorAll('.btn-c').forEach(btn => {
+                btn.style.width = `${size}px`; btn.style.height = `${size}px`; btn.style.fontSize = `${size/2.5}px`;
+            });
+            const ctrlArea = document.querySelector('.controls');
+            ctrlArea.style.justifyContent = posX < 33 ? 'flex-start' : (posX > 66 ? 'flex-end' : 'center');
+            ctrlArea.style.paddingLeft = posX < 33 ? '20px' : '0';
+            ctrlArea.style.paddingRight = posX > 66 ? '20px' : '0';
+            localStorage.setItem('joySize', size); localStorage.setItem('joyPos', posX);
+        }
+
+        function beep(f, d, v=0.08) {
             try {
                 if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if(audioCtx.state === 'suspended') audioCtx.resume();
                 const o = audioCtx.createOscillator(), g = audioCtx.createGain();
                 o.connect(g); g.connect(audioCtx.destination);
-                o.frequency.value = f; o.type = 'sine';
+                o.frequency.value = f; o.type = 'square';
                 g.gain.setValueAtTime(v, audioCtx.currentTime);
                 g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + d);
                 o.start(); o.stop(audioCtx.currentTime + d);
@@ -216,52 +246,47 @@ Carlos Eduardo - 2026
             document.querySelectorAll('.class-btn').forEach(b => b.classList.remove('active'));
             el.classList.add('active');
             document.documentElement.style.setProperty('--neon', c);
-            document.getElementById('skill-btn').style.borderColor = c;
             beep(400, 0.1);
         }
 
         function start() {
-            hero = document.getElementById('nick').value.trim() || "Herói";
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            hero = document.getElementById('nick').value.trim() || "Exilado";
             document.getElementById('menu').style.display = 'none';
             running = true; init();
         }
 
         function init() {
             snake = [{x:10*box, y:10*box}]; dir = nextDir = "RIGHT";
-            score = 0; lvl = 1; mana = 100; speed = 140;
-            boss.active = false; particles = []; floatTexts = [];
+            score = 0; lvl = 1; mana = 100; speed = 145;
             spawn('food'); spawn('mana'); run();
         }
 
         function spawn(t) {
             const p = { x: Math.floor(Math.random()*19)*box, y: Math.floor(Math.random()*19)*box };
-            t === 'food' ? food = p : manaOrb = p;
+            if(t==='food') food = p; else manaOrb = p;
         }
 
         function mv(d) {
             const op = { UP:'DOWN', DOWN:'UP', LEFT:'RIGHT', RIGHT:'LEFT' };
-            if(d !== op[dir]) { nextDir = d; if(navigator.vibrate) navigator.vibrate(15); }
+            if(d !== op[dir]) { nextDir = d; if(navigator.vibrate) navigator.vibrate(12); }
         }
 
         function skill() {
             if(mana < 40 || !running || invul) return;
-            mana -= 40; invul = true; beep(700, 0.3);
-            
-            let duration = 3000;
+            mana -= 40; beep(800, 0.2);
             if(pClass.name === 'Mago') {
-                createPart(snake[0].x, snake[0].y, "#a855f7", 20);
-                snake[0].x = food.x; snake[0].y = food.y;
-                duration = 400;
+                snake[0].x = food.x; snake[0].y = food.y; 
+                ctx.fillStyle="#fff"; ctx.fillRect(0,0,400,400); 
             } else if(pClass.name === 'Guerreiro') {
-                if(snake.length > 2) snake = snake.slice(0, Math.ceil(snake.length/1.5));
-                duration = 4000;
-            } else if(pClass.name === 'Clérigo') duration = 6000;
-            else if(pClass.name === 'Ladino') { 
-                let oldS = speed; speed = 40; run(); 
-                setTimeout(() => { speed = oldS; run(); }, 2500); 
+                invul = true; if(snake.length > 3) snake = snake.slice(0, Math.floor(snake.length / 2));
+                setTimeout(() => { invul = false; }, 4000);
+            } else if(pClass.name === 'Ladino') {
+                invul = true; let oldSpeed = speed; speed = 50; run();
+                setTimeout(() => { invul = false; speed = oldSpeed; run(); }, 3000);
+            } else if(pClass.name === 'Clérigo') {
+                invul = true; setTimeout(() => { invul = false; }, 5000);
             }
-
-            setTimeout(() => { invul = false; }, duration);
         }
 
         function update() {
@@ -271,112 +296,79 @@ Carlos Eduardo - 2026
             if(dir === 'UP') head.y -= box; if(dir === 'DOWN') head.y += box;
             if(dir === 'LEFT') head.x -= box; if(dir === 'RIGHT') head.x += box;
 
-            // BOSS COLLISION
-            if (boss.active) {
-                boss.timer++;
-                boss.x += (snake[0].x - boss.x) * (boss.state === 'DASH' ? 0.07 : 0.02);
-                boss.y += (snake[0].y - boss.y) * (boss.state === 'DASH' ? 0.07 : 0.02);
-                
-                if (boss.timer > 150) { boss.state = Math.random() > 0.5 ? 'HUNT' : 'DASH'; boss.timer = 0; }
-
-                if (Math.hypot(head.x - boss.x, head.y - boss.y) < 25) {
-                    if (invul) { hitBoss(); return; } else { die(); return; }
-                }
-            }
-
             const hitWall = head.x < 0 || head.x >= 400 || head.y < 0 || head.y >= 400;
             const hitSelf = snake.some(s => s.x === head.x && s.y === head.y);
 
-            if ((hitWall || hitSelf) && !invul) { die(); return; }
-            if (invul && hitWall) {
-                if(head.x < 0) head.x = 380; else if(head.x >= 400) head.x = 0;
-                if(head.y < 0) head.y = 380; else if(head.y >= 400) head.y = 0;
+            if (hitWall || hitSelf) {
+                if (invul) { 
+                    if(head.x < 0) head.x = 380; else if(head.x >= 400) head.x = 0;
+                    if(head.y < 0) head.y = 380; else if(head.y >= 400) head.y = 0;
+                } else { die(); return; }
             }
 
             if(head.x === food.x && head.y === food.y) {
-                score += 10; spawn('food'); createPart(food.x, food.y, "#fff");
-                if(score % 50 === 0) { lvl++; speed = Math.max(50, speed-8); run(); if(lvl % 2 === 0) triggerBoss(); }
+                score += 10; spawn('food'); beep(600, 0.08);
+                if(score % 50 === 0) { lvl++; speed = Math.max(50, speed-12); run(); }
             } else if(head.x === manaOrb.x && head.y === manaOrb.y) {
-                mana = Math.min(100, mana + 45); spawn('mana'); createPart(manaOrb.x, manaOrb.y, varColor('--mana'));
-            } else { snake.pop(); mana = Math.min(100, mana + 0.25); }
-            
+                mana = Math.min(100, mana + 45); spawn('mana'); beep(450, 0.1);
+            } else { snake.pop(); mana = Math.min(100, mana + 0.15); }
             snake.unshift(head); draw(); updHUD();
         }
 
         function draw() {
             ctx.clearRect(0, 0, 400, 400);
-            
-            // FOOD & MANA COM BRILHO
-            ctx.shadowBlur = 15;
-            ctx.fillStyle = "#fff"; ctx.shadowColor = "#fff";
-            ctx.beginPath(); ctx.arc(food.x+10, food.y+10, 7, 0, Math.PI*2); ctx.fill();
-            
-            ctx.fillStyle = varColor('--mana'); ctx.shadowColor = varColor('--mana');
-            ctx.beginPath(); ctx.arc(manaOrb.x+10, manaOrb.y+10, 6, 0, Math.PI*2); ctx.fill();
+            const p = Math.sin(Date.now() / 200) * 5;
+            ctx.fillStyle = "#fff"; ctx.shadowBlur = 15 + p; ctx.shadowColor = "#fff";
+            ctx.beginPath(); ctx.arc(food.x+10, food.y+10, 6 + p/4, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = "#3b82f6"; ctx.shadowColor = "#3b82f6";
+            ctx.beginPath(); ctx.arc(manaOrb.x+10, manaOrb.y+10, 5 + p/5, 0, Math.PI*2); ctx.fill();
             ctx.shadowBlur = 0;
-
-            if (boss.active) {
-                ctx.fillStyle = varColor('--danger');
-                ctx.shadowBlur = 20; ctx.shadowColor = varColor('--danger');
-                ctx.fillRect(boss.x - 15, boss.y - 15, 30, 30);
-                ctx.shadowBlur = 0;
-                // Vida do Boss
-                ctx.fillStyle = "rgba(255,255,255,0.2)"; ctx.fillRect(boss.x-20, boss.y-25, 40, 4);
-                ctx.fillStyle = "#fff"; ctx.fillRect(boss.x-20, boss.y-25, (boss.hp/boss.maxHp)*40, 4);
-            }
-
             snake.forEach((s, i) => {
-                ctx.fillStyle = i === 0 ? "#fff" : (invul ? "rgba(255,255,255,0.2)" : pClass.color);
-                if (invul) { ctx.shadowBlur = 10; ctx.shadowColor = pClass.color; }
+                if(invul) { 
+                    ctx.fillStyle = i === 0 ? "#fff" : (pClass.name === 'Clérigo' ? "rgba(251, 191, 36, 0.6)" : "rgba(255,255,255,0.4)"); 
+                    ctx.shadowBlur = 15; ctx.shadowColor = pClass.color; 
+                } else { ctx.fillStyle = i === 0 ? "#fff" : pClass.color; }
                 ctx.beginPath(); ctx.roundRect(s.x+1, s.y+1, box-2, box-2, 6); ctx.fill();
                 ctx.shadowBlur = 0;
             });
-
-            particles.forEach((p, i) => {
-                p.x += p.vx; p.y += p.vy; p.life -= 0.04;
-                if(p.life <= 0) particles.splice(i,1);
-                ctx.fillStyle = p.color; ctx.globalAlpha = p.life;
-                ctx.fillRect(p.x, p.y, p.size, p.size);
-            });
-            
-            floatTexts.forEach((f, i) => {
-                f.y -= 1; f.life -= 0.02;
-                if(f.life <= 0) floatTexts.splice(i,1);
-                ctx.globalAlpha = f.life; ctx.fillStyle = f.color;
-                ctx.font = "bold 12px Orbitron"; ctx.fillText(f.txt, f.x-10, f.y);
-            });
-            ctx.globalAlpha = 1;
         }
 
         function updHUD() {
-            document.getElementById('lvl').innerText = lvl;
+            document.getElementById('score').innerText = score; document.getElementById('lvl').innerText = lvl;
             document.getElementById('xp-bar').style.width = (score % 50 * 2) + "%";
             document.getElementById('mana-bar').style.width = mana + "%";
             document.getElementById('h-class').innerText = pClass.name.toUpperCase();
         }
 
         function die() {
-            running = false; clearInterval(loop);
-            cvs.classList.add('shake'); beep(80, 0.6, 0.2);
-            document.getElementById('final-score').innerText = `${score} XP`;
+            running = false; clearInterval(loop); 
+            cvs.classList.add('shake'); beep(120, 0.5, 0.2);
+            const best = localStorage.getItem('rpg_pb') || 0;
+            if(score > best) localStorage.setItem('rpg_pb', score);
+            document.getElementById('pb').innerText = `Recorde Pessoal: ${Math.max(score, best)} XP`;
             document.getElementById('death').style.display = 'flex';
+            saveScore(hero, score);
+            loadRank();
         }
 
         function run() { clearInterval(loop); loop = setInterval(update, speed); }
-        function toggleFS() { if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
-        function tgChat() { alert("Chat Global: Em breve!"); }
+        function tgChat() { document.getElementById('chat-ui').classList.toggle('open'); if(document.getElementById('chat-ui').classList.contains('open')) loadChat(); }
 
-        // ESTRELAS
+        // --- ESTRELAS ---
         const sCvs = document.getElementById('starfield'), sCtx = sCvs.getContext('2d');
         let stars = []; 
-        function resz() { sCvs.width = window.innerWidth; sCvs.height = window.innerHeight; stars = Array(100).fill().map(() => ({x:Math.random()*sCvs.width, y:Math.random()*sCvs.height, s:Math.random()*2})); }
-        function drwS() { sCtx.clearRect(0,0,sCvs.width, sCvs.height); sCtx.fillStyle="#fff"; stars.forEach(s => { s.y+=0.4; if(s.y>sCvs.height)s.y=0; sCtx.fillRect(s.x,s.y,s.s,s.s); }); requestAnimationFrame(drwS); }
+        function resz() { sCvs.width = window.innerWidth; sCvs.height = window.innerHeight; stars = Array(100).fill().map(() => ({x:Math.random()*sCvs.width, y:Math.random()*sCvs.height, s:Math.random()*2, a:Math.random()})); }
+        function drwS() { sCtx.clearRect(0,0,sCvs.width, sCvs.height); sCtx.fillStyle="#fff"; stars.forEach(s => { s.y += 0.3; if(s.y > sCvs.height) s.y = 0; sCtx.globalAlpha = s.a; sCtx.fillRect(s.x, s.y, s.s, s.s); }); requestAnimationFrame(drwS); }
         window.onresize = resz; resz(); drwS();
 
-        window.onload = () => {
-            const saved = localStorage.getItem('joySize');
-            if(saved) { document.getElementById('set-size').value = saved; updateControlsPreview(); }
-        };
+        window.addEventListener('load', () => {
+            const sS = localStorage.getItem('joySize');
+            const sP = localStorage.getItem('joyPos');
+            if(sS) { document.getElementById('set-size').value = sS; document.getElementById('set-pos').value = sP; updateControlsPreview(); }
+            loadChat(); loadRank();
+        });
+
+        setInterval(() => { if(document.getElementById('chat-ui').classList.contains('open')) loadChat(); }, 3000);
     </script>
 </body>
 </html>
