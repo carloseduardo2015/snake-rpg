@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SNAKE RPG: AETHER ASCENSION</title>
+    <title>SNAKE RPG: AETHER ASCENSION - BOSS EDITION</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { 
             --neon: #22c55e; --mana: #3b82f6; --danger: #ef4444; --gold: #f59e0b;
             --bg: #020617; --panel: rgba(15, 23, 42, 0.98);
         }
-        /* AJUSTE PARA IPHONE NÃO ROLAR A TELA */
         * { touch-action: none; user-select: none; box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
         html, body { position: fixed; overflow: hidden; width: 100%; height: 100%; overscroll-behavior: none; }
         
@@ -158,7 +157,66 @@
         const cvs = document.getElementById("gameCanvas"), ctx = cvs.getContext("2d"), box = 20;
         let snake, food, manaOrb, dir, nextDir, score, lvl, mana, speed, loop, running = false;
         let pClass = { name:'Ladino', color:'#22c55e' }, hero = "", invul = false, audioCtx;
+        
+        // --- BOSS & PARTICLE SYSTEMS ---
+        let boss = { x: -100, y: -100, hp: 0, maxHp: 100, active: false, state: 'HUNT', timer: 0 };
+        let particles = [], floatTexts = [];
 
+        function createPart(x, y, color) {
+            for(let i=0; i<8; i++) particles.push({
+                x, y, vx:(Math.random()-0.5)*10, vy:(Math.random()-0.5)*10,
+                life: 1.0, color
+            });
+        }
+
+        function createFloatingText(x, y, txt, color) {
+            floatTexts.push({ x, y, txt, color, life: 1.0 });
+        }
+
+        function triggerBoss() {
+            boss.active = true; boss.hp = 100 + (lvl * 20); boss.maxHp = boss.hp;
+            boss.x = 200; boss.y = -50; boss.state = 'HUNT'; boss.timer = 0;
+            createFloatingText(200, 200, "O SENTINELA DESPERTOU!", "#ef4444");
+            beep(150, 0.6, 0.15);
+        }
+
+        function hitBoss() {
+            boss.hp -= 20;
+            createPart(boss.x, boss.y, "#fff");
+            createFloatingText(boss.x, boss.y - 20, "-20 HP", "#fff");
+            beep(600, 0.1);
+            if(boss.hp <= 0) {
+                boss.active = false; score += 100;
+                createPart(boss.x, boss.y, "#f59e0b");
+                createFloatingText(boss.x, boss.y, "+100 XP", "#f59e0b");
+                beep(800, 0.5);
+            }
+        }
+
+        function updateBossAI() {
+            if (!boss.active) return;
+            boss.timer++;
+            
+            if (boss.timer > 300) {
+                const states = ['HUNT', 'BLOCK', 'DASH'];
+                boss.state = states[Math.floor(Math.random() * states.length)];
+                boss.timer = 0;
+                createFloatingText(boss.x, boss.y - 30, boss.state, "#fff");
+            }
+
+            if (boss.state === 'HUNT') {
+                boss.x += (snake[0].x - boss.x) * 0.02;
+                boss.y += (snake[0].y - boss.y) * 0.02;
+            } else if (boss.state === 'BLOCK') {
+                let tx = (snake[0].x + food.x) / 2, ty = (snake[0].y + food.y) / 2;
+                boss.x += (tx - boss.x) * 0.04; boss.y += (ty - boss.y) * 0.04;
+            } else if (boss.state === 'DASH') {
+                if (boss.timer < 100) boss.x += (Math.random()-0.5)*4;
+                else { boss.x += (snake[0].x - boss.x) * 0.09; boss.y += (snake[0].y - boss.y) * 0.09; }
+            }
+        }
+
+        // --- CORE LOGIC ---
         function toggleFS() {
             if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e=>{});
             else if (document.exitFullscreen) document.exitFullscreen();
@@ -176,8 +234,6 @@
             });
             const ctrlArea = document.querySelector('.controls');
             ctrlArea.style.justifyContent = posX < 33 ? 'flex-start' : (posX > 66 ? 'flex-end' : 'center');
-            ctrlArea.style.paddingLeft = posX < 33 ? '20px' : '0';
-            ctrlArea.style.paddingRight = posX > 66 ? '20px' : '0';
             localStorage.setItem('joySize', size); localStorage.setItem('joyPos', posX);
         }
 
@@ -204,7 +260,6 @@
 
         function start() {
             if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if(audioCtx.state === 'suspended') audioCtx.resume();
             hero = document.getElementById('nick').value.trim() || "Exilado";
             document.getElementById('menu').style.display = 'none';
             running = true; init();
@@ -213,6 +268,7 @@
         function init() {
             snake = [{x:10*box, y:10*box}]; dir = nextDir = "RIGHT";
             score = 0; lvl = 1; mana = 100; speed = 145;
+            boss.active = false; particles = []; floatTexts = [];
             spawn('food'); spawn('mana'); run();
         }
 
@@ -250,6 +306,20 @@
             if(dir === 'UP') head.y -= box; if(dir === 'DOWN') head.y += box;
             if(dir === 'LEFT') head.x -= box; if(dir === 'RIGHT') head.x += box;
 
+            // Colisão Boss AABB
+            if (boss.active) {
+                updateBossAI();
+                const bSize = 30;
+                if (head.x < boss.x + bSize/2 && head.x + box > boss.x - bSize/2 &&
+                    head.y < boss.y + bSize/2 && head.y + box > boss.y - bSize/2) {
+                    if (invul) { 
+                        hitBoss(); 
+                        if(dir === 'UP') head.y += box*2; else if(dir === 'DOWN') head.y -= box*2;
+                        else if(dir === 'LEFT') head.x += box*2; else head.x -= box*2;
+                    } else { die(); return; }
+                }
+            }
+
             const hitWall = head.x < 0 || head.x >= 400 || head.y < 0 || head.y >= 400;
             const hitSelf = snake.some(s => s.x === head.x && s.y === head.y);
 
@@ -261,29 +331,60 @@
             }
 
             if(head.x === food.x && head.y === food.y) {
-                score += 10; spawn('food'); beep(600, 0.08);
-                if(score % 50 === 0) { lvl++; speed = Math.max(50, speed-12); run(); }
+                score += 10; spawn('food'); createPart(food.x, food.y, "#fff"); beep(600, 0.08);
+                if(score % 50 === 0) { 
+                    lvl++; speed = Math.max(50, speed-12); run(); 
+                    if(lvl % 2 === 0) triggerBoss();
+                }
             } else if(head.x === manaOrb.x && head.y === manaOrb.y) {
-                mana = Math.min(100, mana + 45); spawn('mana'); beep(450, 0.1);
+                mana = Math.min(100, mana + 45); spawn('mana'); createPart(manaOrb.x, manaOrb.y, "#3b82f6"); beep(450, 0.1);
             } else { snake.pop(); mana = Math.min(100, mana + 0.15); }
+            
             snake.unshift(head); draw(); updHUD();
         }
 
         function draw() {
             ctx.clearRect(0, 0, 400, 400);
             const p = Math.sin(Date.now() / 200) * 5;
+            
+            // Food & Mana
             ctx.fillStyle = "#fff"; ctx.shadowBlur = 15 + p; ctx.shadowColor = "#fff";
             ctx.beginPath(); ctx.arc(food.x+10, food.y+10, 6 + p/4, 0, Math.PI*2); ctx.fill();
             ctx.fillStyle = "#3b82f6"; ctx.shadowColor = "#3b82f6";
             ctx.beginPath(); ctx.arc(manaOrb.x+10, manaOrb.y+10, 5 + p/5, 0, Math.PI*2); ctx.fill();
+            
+            // Boss
+            if (boss.active) {
+                ctx.shadowBlur = 20; ctx.fillStyle = (boss.state === 'DASH' && boss.timer < 100) ? "#fff" : (boss.state === 'BLOCK' ? "#a855f7" : "#ef4444");
+                ctx.shadowColor = ctx.fillStyle;
+                ctx.fillRect(boss.x - 15, boss.y - 15, 30, 30);
+                ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fillRect(boss.x - 20, boss.y - 25, 40, 4);
+                ctx.fillStyle = "#22c55e"; ctx.fillRect(boss.x - 20, boss.y - 25, (boss.hp/boss.maxHp)*40, 4);
+            }
+
+            // Snake
             ctx.shadowBlur = 0;
             snake.forEach((s, i) => {
-                if(invul) { 
-                    ctx.fillStyle = i === 0 ? "#fff" : (pClass.name === 'Clérigo' ? "rgba(251, 191, 36, 0.6)" : "rgba(255,255,255,0.4)"); 
-                    ctx.shadowBlur = 15; ctx.shadowColor = pClass.color; 
-                } else { ctx.fillStyle = i === 0 ? "#fff" : pClass.color; }
+                ctx.fillStyle = i === 0 ? "#fff" : (invul ? "rgba(255,255,255,0.4)" : pClass.color);
+                if(invul) { ctx.shadowBlur = 15; ctx.shadowColor = pClass.color; }
                 ctx.beginPath(); ctx.roundRect(s.x+1, s.y+1, box-2, box-2, 6); ctx.fill();
                 ctx.shadowBlur = 0;
+            });
+
+            // Particles & Texts
+            particles.forEach((pt, i) => {
+                pt.x += pt.vx; pt.y += pt.vy; pt.life -= 0.02;
+                if(pt.life <= 0) particles.splice(i,1);
+                ctx.fillStyle = pt.color; ctx.globalAlpha = pt.life;
+                ctx.fillRect(pt.x, pt.y, 3, 3);
+            });
+            ctx.globalAlpha = 1.0;
+
+            floatTexts.forEach((ft, i) => {
+                ft.y -= 1; ft.life -= 0.01;
+                if(ft.life <= 0) floatTexts.splice(i,1);
+                ctx.fillStyle = ft.color; ctx.font = "bold 10px Orbitron";
+                ctx.fillText(ft.txt, ft.x - 20, ft.y);
             });
         }
 
@@ -301,37 +402,12 @@
             if(score > best) localStorage.setItem('rpg_pb', score);
             document.getElementById('pb').innerText = `Recorde Pessoal: ${Math.max(score, best)} XP`;
             document.getElementById('death').style.display = 'flex';
-            try {
-                await fetch('/save-ranking', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario:hero, pontos:score}) });
-                loadRank();
-            } catch(e){}
         }
 
         function run() { clearInterval(loop); loop = setInterval(update, speed); }
-        function tgChat() { document.getElementById('chat-ui').classList.toggle('open'); if(document.getElementById('chat-ui').classList.contains('open')) loadChat(); }
-        async function send() {
-            const i = document.getElementById('chat-in'); if(!i.value) return;
-            try {
-                await fetch('/send-chat', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario:hero, texto:i.value}) });
-                i.value = ""; loadChat();
-            } catch(e){}
-        }
-        async function loadChat() {
-            try {
-                const r = await fetch('/get-chat'), d = await r.json();
-                document.getElementById('chat-box').innerHTML = d.map(m => `<div style="margin-bottom:6px;"><b style="color:var(--neon)">${m.usuario}:</b> ${m.texto}</div>`).join("");
-                document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
-            } catch(e){}
-        }
-        async function loadRank() {
-            try {
-                const r = await fetch('/get-ranking'), d = await r.json();
-                if(d && d.length > 0) {
-                    document.getElementById('rank-list').innerHTML = d.slice(0,5).map((m,i) => `<div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.05);"><span>${i+1}º ${m.usuario}</span><b style="color:var(--neon)">${m.pontos} XP</b></div>`).join("");
-                }
-            } catch(e){}
-        }
-
+        function tgChat() { document.getElementById('chat-ui').classList.toggle('open'); }
+        
+        // --- STARFIELD ---
         const sCvs = document.getElementById('starfield'), sCtx = sCvs.getContext('2d');
         let stars = []; 
         function resz() { sCvs.width = window.innerWidth; sCvs.height = window.innerHeight; stars = Array(100).fill().map(() => ({x:Math.random()*sCvs.width, y:Math.random()*sCvs.height, s:Math.random()*2, a:Math.random()})); }
@@ -343,9 +419,6 @@
             const sP = localStorage.getItem('joyPos');
             if(sS) { document.getElementById('set-size').value = sS; document.getElementById('set-pos').value = sP; updateControlsPreview(); }
         });
-
-        loadChat(); loadRank();
-        setInterval(() => { if(document.getElementById('chat-ui').classList.contains('open')) loadChat(); }, 3000);
     </script>
 </body>
 </html>
